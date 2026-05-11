@@ -1,0 +1,34 @@
+<header class="header">
+  <span>Poll App Design</span>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <h1>Collect Feedback,<br />Unlock Ideas</h1>
+      <p>
+        Create and share surveys in minutes — from team events to workplace culture.
+      </p>
+      <button>New survey</button>
+    </div>
+
+    <div class="hero-card">
+      <span>?</span>
+    </div>
+  </section>
+
+  <section class="surveys">
+    <h2>Your surveys</h2>
+
+    <h3>Ending soon surveys</h3>
+
+    <div class="card-row">
+      <app-survey-card
+        *ngFor="let survey of surveys"
+        [category]="survey.category"
+        [title]="survey.title"
+        [ending]="survey.ending"
+      ></app-survey-card>
+    </div>
+  </section>
+</main>
