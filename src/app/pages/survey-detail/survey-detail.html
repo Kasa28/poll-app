@@ -1,3 +1,7 @@
+<section class="detail-state" *ngIf="isLoading">
+  <p>Loading survey...</p>
+</section>
+
 <ng-container *ngIf="survey as survey">
   <header class="detail-header">
     <div class="logo">▰ Poll<br />App</div>
@@ -7,6 +11,10 @@
 
   <main class="detail-page">
     <section class="survey-sheet">
+      <p class="source-notice" *ngIf="sourceNotice">
+        {{ sourceNotice }}
+      </p>
+
       <div class="survey-meta">
         <div>
           <span class="badge">Published</span>
@@ -16,7 +24,12 @@
           </p>
         </div>
 
-        <p>Category: {{ survey.category }}</p>
+        <p>
+          Category: {{ survey.category }}
+          <span class="data-source" *ngIf="dataSource">
+            ({{ dataSource }})
+          </span>
+        </p>
       </div>
 
       <h1>{{ survey.title || 'Created survey' }}</h1>
@@ -31,7 +44,7 @@
       <div class="questions-grid">
         <section
           class="question-block"
-          *ngFor="let question of survey.questions; let questionIndex = index"
+          *ngFor="let question of survey.questions || []; let questionIndex = index"
         >
           <h3>{{ questionIndex + 1 }}. {{ question.text }}</h3>
 
@@ -44,7 +57,7 @@
             <input
               type="checkbox"
               [checked]="isSelected(questionIndex, answerIndex)"
-              (change)="vote(questionIndex, answerIndex)"
+              (change)="selectAnswer(questionIndex, answerIndex)"
             />
 
             <span>
@@ -55,7 +68,7 @@
         </section>
       </div>
 
-      <button class="complete-btn">
+      <button class="complete-btn" type="button" (click)="completeSurvey()">
         Complete survey
       </button>
     </section>
@@ -67,7 +80,7 @@
 
       <section
         class="result-question"
-        *ngFor="let question of survey.questions; let questionIndex = index"
+        *ngFor="let question of survey.questions || []; let questionIndex = index"
       >
         <h3>{{ questionIndex + 1 }}. {{ question.text }}</h3>
 
@@ -92,3 +105,9 @@
     </aside>
   </main>
 </ng-container>
+
+<section class="detail-state error" *ngIf="!survey && !isLoading">
+  <h2>{{ errorMessage || 'Survey could not be loaded.' }}</h2>
+  <p *ngIf="errorDetails">{{ errorDetails }}</p>
+  <a routerLink="/" class="back-link">Back to home</a>
+</section>

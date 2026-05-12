@@ -160,4 +160,8 @@
   <button class="publish-btn" type="button" (click)="publishSurvey()">
     Publish
   </button>
+
+  <p class="publish-error" *ngIf="publishError">
+    {{ publishError }}
+  </p>
 </section>

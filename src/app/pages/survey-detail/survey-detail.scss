@@ -5,6 +5,28 @@
   color: #2f2038;
 }
 
+.detail-state {
+  max-width: 760px;
+  margin: 80px auto;
+  padding: 32px;
+  border-radius: 20px;
+  background: #eee9ef;
+
+  h2 {
+    margin: 0 0 12px;
+    color: #8b3f32;
+  }
+
+  p {
+    margin: 0 0 16px;
+  }
+
+  .back-link {
+    color: #2f2038;
+    font-weight: 700;
+  }
+}
+
 .detail-header {
   width: 1060px;
   margin: 0 auto;
@@ -57,6 +79,17 @@
     padding: 5px 10px;
     background: #ffc38f;
     border-radius: 4px;
+  }
+
+  .source-notice {
+    margin: 0 0 18px;
+    color: #8b3f32;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .data-source {
+    opacity: 0.7;
   }
 
   h1 {
