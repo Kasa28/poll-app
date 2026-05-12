@@ -6,9 +6,11 @@
   <section class="hero">
     <div>
       <h1>Collect Feedback,<br />Unlock Ideas</h1>
+
       <p>
         Create and share surveys in minutes — from team events to workplace culture.
       </p>
+
       <button routerLink="/create">
         New survey
       </button>
@@ -19,7 +21,6 @@
     </div>
   </section>
 
-
   <section class="surveys">
     <h2>Your surveys</h2>
 
@@ -28,9 +29,14 @@
     <div class="card-row">
       <app-survey-card
         *ngFor="let survey of surveys"
+        [id]="survey.id"
         [category]="survey.category"
         [title]="survey.title"
-        [ending]="survey.ending"
+        [ending]="
+          survey.endDate
+            ? 'Ends on ' + survey.endDate
+            : 'No end date'
+        "
       ></app-survey-card>
     </div>
   </section>

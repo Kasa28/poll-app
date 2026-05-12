@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 type QuestionBlock = {
   text: string;
@@ -25,10 +25,14 @@ type Survey = {
   styleUrl: './survey-detail.scss',
 })
 export class SurveyDetail {
-  survey: Survey = this.getSavedSurvey();
+  survey: Survey;
 
   selectedAnswers: Record<number, number[]> = {};
   votes: Record<number, Record<number, number>> = {};
+
+  constructor(private route: ActivatedRoute) {
+    this.survey = this.getSavedSurvey();
+  }
 
   vote(questionIndex: number, answerIndex: number) {
     const selected = this.selectedAnswers[questionIndex] || [];
@@ -77,6 +81,12 @@ export class SurveyDetail {
   }
 
   private getSavedSurvey(): Survey {
-    return JSON.parse(localStorage.getItem('publishedSurvey') || '{}');
+    const surveyId = this.route.snapshot.paramMap.get('id');
+
+    const surveys: Survey[] = JSON.parse(
+      localStorage.getItem('publishedSurveys') || '[]'
+    );
+
+    return surveys.find(survey => survey.id === surveyId) || surveys[0];
   }
 }

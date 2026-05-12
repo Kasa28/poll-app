@@ -85,6 +85,13 @@ export class CreateSurvey {
     questions: this.questions,
   };
 
+  const savedSurveys = JSON.parse(
+    localStorage.getItem('publishedSurveys') || '[]'
+  );
+
+  savedSurveys.push(survey);
+
+  localStorage.setItem('publishedSurveys', JSON.stringify(savedSurveys));
   localStorage.setItem('publishedSurvey', JSON.stringify(survey));
 
   this.router.navigate(['/survey', survey.id]);
