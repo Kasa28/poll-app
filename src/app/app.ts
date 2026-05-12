@@ -1,13 +1,11 @@
-import { Component, signal } from '@angular/core';
-import { Home } from './pages/home/home';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [Home],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
-export class App {
-  protected readonly title = signal('poll-app');
-}
+export class App {}
