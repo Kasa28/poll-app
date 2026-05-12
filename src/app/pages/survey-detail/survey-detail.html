@@ -1,0 +1,83 @@
+<header class="detail-header">
+  <div class="logo">▰ Poll<br />App</div>
+
+  <a routerLink="/create" class="create-btn">Create survey</a>
+</header>
+
+<main class="detail-page">
+  <section class="survey-sheet">
+    <div class="survey-meta">
+      <div>
+        <span class="badge">Published</span>
+        <p *ngIf="survey.endDate">
+          Ends on {{ survey.endDate }}
+       </p>
+      </div>
+
+      <p>Category: {{ survey.category }}</p>
+    </div>
+
+    <h1>{{ survey.title || 'Created survey' }}</h1>
+
+    <p class="description">
+  {{
+    survey.description ||
+    'We want to collect your opinion — choose your answers and complete the survey.'
+  }}
+</p>
+
+    <div class="questions-grid">
+      <section
+        class="question-block"
+        *ngFor="let question of survey.questions; let questionIndex = index"
+      >
+        <h3>{{ questionIndex + 1 }}. {{ question.text }}</h3>
+        <small>More than one answers are possible.</small>
+
+        <label
+          class="answer-option"
+          *ngFor="let answer of question.answers; let answerIndex = index"
+        >
+          <input
+            type="checkbox"
+            [checked]="isSelected(questionIndex, answerIndex)"
+            (change)="vote(questionIndex, answerIndex)"
+          />
+
+          <span>
+            {{ getAnswerLabel(answerIndex) }} {{ answer || 'Answer ' + getAnswerLabel(answerIndex) }}
+          </span>
+        </label>
+      </section>
+    </div>
+
+    <button class="complete-btn">Complete survey</button>
+  </section>
+
+  <aside class="results-panel">
+    <h2>Survey results <span>LIVE</span></h2>
+
+    <section
+      class="result-question"
+      *ngFor="let question of survey.questions; let questionIndex = index"
+    >
+      <h3>{{ questionIndex + 1 }}. {{ question.text }}</h3>
+
+      <div
+        class="result-row"
+        *ngFor="let answer of question.answers; let answerIndex = index"
+      >
+        <span>{{ getAnswerLetter(answerIndex) }}</span>
+
+        <div class="result-track">
+          <div
+            class="result-fill"
+            [style.width.%]="getPercentage(questionIndex, answerIndex)"
+          ></div>
+        </div>
+
+        <strong>{{ getPercentage(questionIndex, answerIndex) }}%</strong>
+      </div>
+    </section>
+  </aside>
+</main>

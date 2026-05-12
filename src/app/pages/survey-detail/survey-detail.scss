@@ -1,0 +1,161 @@
+:host {
+  min-height: 100vh;
+  display: block;
+  background: #f4f1f4;
+  color: #2f2038;
+}
+
+.detail-header {
+  width: 1060px;
+  margin: 0 auto;
+  padding: 28px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .logo {
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .create-btn {
+    padding: 14px 22px;
+    border-radius: 10px;
+    background: #ffc38f;
+    color: #2f2038;
+    text-decoration: none;
+    font-weight: 700;
+  }
+}
+
+.detail-page {
+  width: 1060px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 620px 1fr;
+  gap: 42px;
+  align-items: start;
+}
+
+.survey-sheet {
+  padding: 34px;
+  background: #eee9ef;
+  border-radius: 0 95px 0 0;
+
+  .survey-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+
+    p {
+      margin: 6px 0;
+    }
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 5px 10px;
+    background: #ffc38f;
+    border-radius: 4px;
+  }
+
+  h1 {
+    margin: 12px 0;
+    color: #f7932f;
+    font-size: 36px;
+    line-height: 1.1;
+  }
+
+  .description {
+    margin-bottom: 28px;
+    font-size: 14px;
+  }
+
+  .questions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 40px;
+  }
+
+  .question-block {
+    h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
+    }
+
+    small {
+      display: block;
+      margin-bottom: 16px;
+      font-size: 10px;
+      opacity: 0.75;
+    }
+  }
+
+  .answer-option {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .complete-btn {
+    float: right;
+    margin-top: 24px;
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 20px;
+    background: #ffe0c3;
+    color: #2f2038;
+    font-weight: 800;
+  }
+}
+
+.results-panel {
+  padding-top: 105px;
+
+  h2 {
+    margin: 0 0 24px;
+    font-size: 24px;
+
+    span {
+      color: #ffad70;
+    }
+  }
+
+  .result-question {
+    margin-bottom: 28px;
+
+    h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+  }
+
+  .result-row {
+    display: grid;
+    grid-template-columns: 18px 1fr 38px;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  .result-track {
+    height: 12px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #e1dfdf;
+  }
+
+  .result-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: #ffb36b;
+  }
+
+  strong {
+    color: #f7932f;
+    font-size: 11px;
+  }
+}

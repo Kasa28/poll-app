@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { SurveyCard } from '../../components/survey-card/survey-card';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, SurveyCard],
+  imports: [CommonModule, SurveyCard, RouterLink, SurveyCard,  CommonModule,],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -29,4 +30,10 @@ export class Home {
       ending: 'Ends in 3 Days',
     },
   ];
+
+  isCreateFormVisible = false;
+
+toggleCreateForm() {
+  this.isCreateFormVisible = !this.isCreateFormVisible;
+}
 }
