@@ -1,0 +1,163 @@
+<section class="create-modal">
+  <div class="modal-head">
+    <div>
+      <span class="badge">Draft</span>
+      <h2>Create new survey</h2>
+    </div>
+
+    <a class="cancel-btn" routerLink="/">Cancel &times;</a>
+  </div>
+
+  <div class="form-panel">
+    <div class="survey-details">
+      <div class="field-grid">
+        <label class="survey-name-field">
+          Survey name
+          <div class="input-with-icon">
+            <input type="text" [(ngModel)]="surveyTitle" />
+            <button class="ghost-icon" type="button" aria-label="Remove survey name">&#128465;</button>
+          </div>
+        </label>
+
+        <label class="description-field">
+          Describing text <span>(optional)</span>
+          <div class="input-with-icon">
+            <textarea [(ngModel)]="surveyDescription"></textarea>
+            <button class="ghost-icon" type="button" aria-label="Remove description">&#128465;</button>
+          </div>
+        </label>
+
+        <label class="end-date-field">
+          Set end date <span>(optional)</span>
+          <div class="input-with-icon small-input">
+            <input type="text" [(ngModel)]="surveyEndDate" />
+            <button class="ghost-icon" type="button" aria-label="Remove end date">&#128465;</button>
+          </div>
+        </label>
+
+        <div class="category-field">
+          <button class="category-btn" type="button" (click)="toggleCategoryMenu()">
+            {{ selectedCategory || 'Choose category' }}
+            <span class="caret">{{ isCategoryMenuOpen ? '▲' : '▼' }}</span>
+          </button>
+
+          <div class="category-menu" *ngIf="isCategoryMenuOpen">
+            <button
+              *ngFor="let category of categories; trackBy: trackByIndex"
+              type="button"
+              class="category-option"
+              (click)="selectCategory(category)"
+            >
+              {{ category }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="questions-layout" [class.has-extra-questions]="additionalQuestions.length > 0">
+      <section class="question-card primary-question">
+        <div class="question-heading">
+          <label class="question-label">
+            1. Question
+            <div class="input-with-icon">
+              <input
+                type="text"
+                [(ngModel)]="firstQuestion.text"
+                placeholder="Which date would work best for you?"
+              />
+              <button class="ghost-icon" type="button" aria-label="Remove question">&#128465;</button>
+            </div>
+          </label>
+        </div>
+
+        <div class="answers-head">
+          <strong>Answers</strong>
+
+          <label class="answers-toggle">
+            <input type="checkbox" [(ngModel)]="firstQuestion.allowMultiple" />
+            Allow multiple answers.
+          </label>
+        </div>
+
+        <label
+          class="answer-line"
+          *ngFor="let answer of firstQuestion.answers; let answerIndex = index; trackBy: trackByIndex"
+        >
+          <span class="answer-label">{{ getAnswerLabel(answerIndex) }}</span>
+          <div class="input-with-icon">
+            <input type="text" [(ngModel)]="firstQuestion.answers[answerIndex]" />
+            <button class="ghost-icon" type="button" aria-label="Remove answer">&#128465;</button>
+          </div>
+        </label>
+
+        <div class="question-actions">
+          <button class="link-btn" type="button" (click)="addAnswer(0)">
+            Add answer &#8853;
+          </button>
+
+          <span class="answer-hint" *ngIf="firstQuestion.answers.length > 2">
+            You can add up to 6 answer fields.
+          </span>
+        </div>
+      </section>
+
+      <div class="add-question-panel" *ngIf="additionalQuestions.length === 0">
+        <button class="add-question-btn" type="button" (click)="addNextQuestion()">
+          Add next question &#8853;
+        </button>
+      </div>
+
+      <section
+        class="question-card"
+        *ngFor="let question of additionalQuestions; let extraIndex = index; trackBy: trackByIndex"
+      >
+        <label class="question-label">
+          {{ extraIndex + 2 }}. Question
+          <div class="input-with-icon">
+            <input
+              type="text"
+              [(ngModel)]="question.text"
+              placeholder="Choose the activities you prefer?"
+            />
+            <button class="ghost-icon" type="button" aria-label="Remove question">&#128465;</button>
+          </div>
+        </label>
+
+        <div class="answers-head">
+          <strong>Answers</strong>
+
+          <label class="answers-toggle">
+            <input type="checkbox" [(ngModel)]="question.allowMultiple" />
+            Allow multiple answers.
+          </label>
+        </div>
+
+        <label
+          class="answer-line"
+          *ngFor="let answer of question.answers; let answerIndex = index; trackBy: trackByIndex"
+        >
+          <span class="answer-label">{{ getAnswerLabel(answerIndex) }}</span>
+          <div class="input-with-icon">
+            <input type="text" [(ngModel)]="question.answers[answerIndex]" />
+            <button class="ghost-icon" type="button" aria-label="Remove answer">&#128465;</button>
+          </div>
+        </label>
+
+        <div class="question-actions">
+          <button class="link-btn" type="button" (click)="addAnswer(extraIndex + 1)">
+            Add answer &#8853;
+          </button>
+
+          <span class="answer-hint" *ngIf="question.answers.length > 2">
+            You can add up to 6 answer fields.
+          </span>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <button class="publish-btn" type="button" (click)="publishSurvey()">
+    Publish
+  </button>
+</section>
