@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { supabase } from '../../supabase';
 
 type QuestionBlock = {
   text: string;
@@ -25,16 +26,41 @@ type Survey = {
   styleUrl: './survey-detail.scss',
 })
 export class SurveyDetail {
-  survey: Survey;
+  survey?: Survey;
 
   selectedAnswers: Record<number, number[]> = {};
   votes: Record<number, Record<number, number>> = {};
 
-  constructor(private route: ActivatedRoute) {
-    this.survey = this.getSavedSurvey();
+  constructor(private route: ActivatedRoute) {}
+
+  async ngOnInit() {
+    const surveyId = this.route.snapshot.paramMap.get('id');
+
+    const { data } = await supabase
+      .from('surveys')
+      .select('*')
+      .eq('id', surveyId)
+      .single();
+
+    if (!data) {
+      return;
+    }
+
+    this.survey = {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      endDate: data.end_date,
+      category: data.category,
+      questions: data.questions,
+    };
   }
 
   vote(questionIndex: number, answerIndex: number) {
+    if (!this.survey) {
+      return;
+    }
+
     const selected = this.selectedAnswers[questionIndex] || [];
     const question = this.survey.questions[questionIndex];
 
@@ -78,15 +104,5 @@ export class SurveyDetail {
     this.votes[questionIndex] ??= {};
     this.votes[questionIndex][answerIndex] ??= 0;
     this.votes[questionIndex][answerIndex]++;
-  }
-
-  private getSavedSurvey(): Survey {
-    const surveyId = this.route.snapshot.paramMap.get('id');
-
-    const surveys: Survey[] = JSON.parse(
-      localStorage.getItem('publishedSurveys') || '[]'
-    );
-
-    return surveys.find(survey => survey.id === surveyId) || surveys[0];
   }
 }
