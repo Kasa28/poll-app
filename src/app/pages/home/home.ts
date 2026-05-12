@@ -34,9 +34,21 @@ type LocalSurvey = {
   styleUrl: './home.scss',
 })
 export class Home {
+  readonly categories = [
+    'Team Activities',
+    'Health & Wellness',
+    'Gaming & Entertainment',
+    'Education & Learning',
+    'Lifestyle & Preferences',
+    'Technology & Innovation',
+  ];
+
   surveys: Survey[] = [];
+  filteredSurveys: Survey[] = [];
   endingSoonSurveys: Survey[] = [];
   loadNotice = '';
+  isCategoryMenuOpen = false;
+  selectedCategory = '';
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -62,7 +74,7 @@ export class Home {
         const dbSurveys = (data || []).map(survey => this.mapSurvey(survey));
         this.surveys = this.mergeSurveys(dbSurveys, localSurveys);
         this.loadNotice = '';
-        this.updateEndingSoonSurveys();
+        this.updateSurveyViews();
       }
     } catch (error) {
       console.log('Home survey load exception:', error);
@@ -113,11 +125,31 @@ export class Home {
   private loadFromLocal(localSurveys: Survey[], notice: string) {
     this.surveys = localSurveys;
     this.loadNotice = notice;
-    this.updateEndingSoonSurveys();
+    this.updateSurveyViews();
   }
 
-  private updateEndingSoonSurveys() {
-    this.endingSoonSurveys = [...this.surveys]
+  toggleCategoryMenu() {
+    this.isCategoryMenuOpen = !this.isCategoryMenuOpen;
+  }
+
+  selectCategory(category: string) {
+    this.selectedCategory = category;
+    this.isCategoryMenuOpen = false;
+    this.updateSurveyViews();
+  }
+
+  clearCategoryFilter() {
+    this.selectedCategory = '';
+    this.isCategoryMenuOpen = false;
+    this.updateSurveyViews();
+  }
+
+  private updateSurveyViews() {
+    this.filteredSurveys = this.selectedCategory
+      ? this.surveys.filter(survey => survey.category === this.selectedCategory)
+      : [...this.surveys];
+
+    this.endingSoonSurveys = [...this.filteredSurveys]
       .sort((a, b) => a.sortValue - b.sortValue)
       .slice(0, 3);
   }

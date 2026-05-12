@@ -207,8 +207,47 @@
   background: #f2e7df;
 }
 
+.sort-menu {
+  position: relative;
+}
+
 .sort-btn {
-  font-size: 14px;
+  min-width: 160px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #4b3952;
+  font-size: 12px;
+  text-align: left;
+}
+
+.sort-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 3;
+  width: 165px;
+  padding: 6px 0;
+  border-radius: 10px;
+  background: #fbfbfb;
+  box-shadow: 0 20px 40px rgba(20, 10, 28, 0.28);
+}
+
+.sort-option {
+  width: 100%;
+  border: 0;
+  padding: 8px 10px;
+  background: transparent;
+  color: #39293f;
+  cursor: pointer;
+  font-size: 10px;
+  text-align: left;
+}
+
+.sort-option:hover {
+  background: #f3edf6;
 }
 
 .survey-list {
@@ -258,7 +297,6 @@
     grid-template-columns: 1fr;
   }
 
-  .top-bar,
   .survey-toolbar {
     flex-direction: column;
     align-items: flex-start;
@@ -267,5 +305,11 @@
 
   .hero-card {
     min-height: 200px;
+  }
+
+  .sort-dropdown {
+    width: min(70vw, 165px);
+    left: 0;
+    right: auto;
   }
 }

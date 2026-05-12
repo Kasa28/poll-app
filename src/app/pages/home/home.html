@@ -56,13 +56,33 @@
         <button type="button" class="pill">Past survey</button>
       </div>
 
-      <button type="button" class="sort-btn">Sort by categories ▼</button>
+      <div class="sort-menu" [class.open]="isCategoryMenuOpen">
+        <button type="button" class="sort-btn" (click)="toggleCategoryMenu()">
+          {{ selectedCategory || 'Sort by categories' }}
+          <span>{{ isCategoryMenuOpen ? '▲' : '▼' }}</span>
+        </button>
+
+        <div class="sort-dropdown" *ngIf="isCategoryMenuOpen">
+          <button type="button" class="sort-option" (click)="clearCategoryFilter()">
+            All categories
+          </button>
+
+          <button
+            type="button"
+            class="sort-option"
+            *ngFor="let category of categories"
+            (click)="selectCategory(category)"
+          >
+            {{ category }}
+          </button>
+        </div>
+      </div>
     </section>
 
     <section class="survey-list">
       <a
         class="survey-row"
-        *ngFor="let survey of surveys"
+        *ngFor="let survey of filteredSurveys"
         [routerLink]="['/survey', survey.id]"
       >
         <small>{{ survey.category }}</small>
