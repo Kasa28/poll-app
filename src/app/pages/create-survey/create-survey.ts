@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { supabase } from '../../supabase';
 
 type QuestionBlock = {
   text: string;
@@ -75,27 +76,36 @@ export class CreateSurvey {
     });
   }
 
-  publishSurvey() {
-  const survey = {
-    id: Date.now().toString(),
-    title: this.surveyTitle || 'Created survey',
-    description: this.surveyDescription,
-    endDate: this.surveyEndDate,
-    category: this.selectedCategory || 'General',
-    questions: this.questions,
-  };
+  async publishSurvey() {
+    const survey = {
+      id: Date.now().toString(),
+      title: this.surveyTitle || 'Created survey',
+      description: this.surveyDescription,
+      endDate: this.surveyEndDate,
+      category: this.selectedCategory || 'General',
+      questions: this.questions,
+    };
 
-  const savedSurveys = JSON.parse(
-    localStorage.getItem('publishedSurveys') || '[]'
-  );
+    const savedSurveys = JSON.parse(
+      localStorage.getItem('publishedSurveys') || '[]'
+    );
 
-  savedSurveys.push(survey);
+    savedSurveys.unshift(survey);
 
-  localStorage.setItem('publishedSurveys', JSON.stringify(savedSurveys));
-  localStorage.setItem('publishedSurvey', JSON.stringify(survey));
+    localStorage.setItem('publishedSurveys', JSON.stringify(savedSurveys));
+    localStorage.setItem('publishedSurvey', JSON.stringify(survey));
 
-  this.router.navigate(['/survey', survey.id]);
-}
+    await supabase.from('surveys').insert({
+      id: survey.id,
+      title: survey.title,
+      description: survey.description,
+      end_date: survey.endDate,
+      category: survey.category,
+      questions: survey.questions,
+    });
+
+    this.router.navigate(['/survey', survey.id]);
+  }
 
   trackByIndex(index: number) {
     return index;
