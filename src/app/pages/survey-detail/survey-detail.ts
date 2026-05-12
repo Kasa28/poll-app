@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { supabase } from '../../supabase';
 
 type QuestionBlock = {
@@ -53,6 +53,7 @@ export class SurveyDetail {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -115,6 +116,7 @@ export class SurveyDetail {
 
     this.selectedAnswers = {};
     await this.loadVotes();
+    await this.router.navigate(['/']);
   }
 
   selectAnswer(questionIndex: number, answerIndex: number) {

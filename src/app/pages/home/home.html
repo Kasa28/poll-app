@@ -2,42 +2,73 @@
   <span>Poll App Design</span>
 </header>
 
-<main>
+<main class="home-page">
   <section class="hero">
-    <div>
+    <div class="hero-copy">
+      <span class="hero-logo">Poll App</span>
       <h1>Collect Feedback,<br />Unlock Ideas</h1>
 
       <p>
-        Create and share surveys in minutes — from team events to workplace culture.
+        Create and share surveys in minutes - from team events to workplace culture.
+        Collect opinions, engage your audience, and turn feedback into action.
       </p>
 
-      <button routerLink="/create">
-        New survey
-      </button>
+      <a routerLink="/create" class="new-survey-btn">New survey</a>
     </div>
 
     <div class="hero-card">
-      <span>?</span>
+      <span class="hero-badge">?</span>
+      <div class="hero-phone">
+        <div class="hero-phone-line short"></div>
+        <div class="hero-phone-line"></div>
+        <div class="hero-phone-line"></div>
+        <div class="hero-phone-line short"></div>
+      </div>
     </div>
   </section>
 
-  <section class="surveys">
-    <h2>Your surveys</h2>
+  <section class="survey-section">
+    <h2 class="section-title">Your surveys</h2>
 
-    <h3>Ending soon surveys</h3>
+    <p class="load-notice" *ngIf="loadNotice">
+      {{ loadNotice }}
+    </p>
 
-    <div class="card-row">
-      <app-survey-card
+    <section class="ending-soon">
+      <h3>Ending soon surveys</h3>
+
+      <div class="ending-grid">
+        <a
+          class="ending-card"
+          *ngFor="let survey of endingSoonSurveys"
+          [routerLink]="['/survey', survey.id]"
+        >
+          <small>{{ survey.category }}</small>
+          <h4>{{ survey.title }}</h4>
+          <span>{{ survey.endingLabel }}</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="survey-toolbar">
+      <div class="filter-pills">
+        <button type="button" class="pill active">Active survey</button>
+        <button type="button" class="pill">Past survey</button>
+      </div>
+
+      <button type="button" class="sort-btn">Sort by categories ▼</button>
+    </section>
+
+    <section class="survey-list">
+      <a
+        class="survey-row"
         *ngFor="let survey of surveys"
-        [id]="survey.id"
-        [category]="survey.category"
-        [title]="survey.title"
-        [ending]="
-          survey.endDate
-            ? 'Ends on ' + survey.endDate
-            : 'No end date'
-        "
-      ></app-survey-card>
-    </div>
+        [routerLink]="['/survey', survey.id]"
+      >
+        <small>{{ survey.category }}</small>
+        <h3>{{ survey.title }}</h3>
+        <span>{{ survey.endingLabel }}</span>
+      </a>
+    </section>
   </section>
 </main>

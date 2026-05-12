@@ -1,10 +1,25 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SurveyCard } from '../../components/survey-card/survey-card';
 import { supabase } from '../../supabase';
 
 type Survey = {
+  id: string;
+  category: string;
+  title: string;
+  endDate: string;
+  endingLabel: string;
+  sortValue: number;
+};
+
+type SurveyRow = {
+  id: string | number;
+  category: string | null;
+  title: string;
+  end_date: string | null;
+};
+
+type LocalSurvey = {
   id: string;
   category: string;
   title: string;
@@ -14,24 +29,149 @@ type Survey = {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, SurveyCard],
+  imports: [CommonModule, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home {
   surveys: Survey[] = [];
+  endingSoonSurveys: Survey[] = [];
+  loadNotice = '';
+
+  constructor(private cdr: ChangeDetectorRef) {}
 
   async ngOnInit() {
-    const { data } = await supabase
-      .from('surveys')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const localSurveys = this.getLocalSurveys();
 
-    this.surveys = (data || []).map(survey => ({
-      id: survey.id,
-      category: survey.category,
+    try {
+      const { data, error } = await this.withTimeout<{ data: SurveyRow[] | null; error: { message: string } | null }>(
+        Promise.resolve(
+          supabase
+            .from('surveys')
+            .select('*')
+            .order('created_at', { ascending: false })
+        ),
+        8000,
+        'Survey list request timed out.'
+      );
+
+      if (error) {
+        console.log('Home survey load error:', error);
+        this.loadFromLocal(localSurveys, 'Database fetch failed. Showing locally saved surveys.');
+      } else {
+        const dbSurveys = (data || []).map(survey => this.mapSurvey(survey));
+        this.surveys = this.mergeSurveys(dbSurveys, localSurveys);
+        this.loadNotice = '';
+        this.updateEndingSoonSurveys();
+      }
+    } catch (error) {
+      console.log('Home survey load exception:', error);
+      this.loadFromLocal(
+        localSurveys,
+        error instanceof Error ? error.message : 'Survey list could not be loaded.'
+      );
+    } finally {
+      this.cdr.detectChanges();
+    }
+  }
+
+  private mapSurvey(survey: SurveyRow | LocalSurvey): Survey {
+    const endDate = 'end_date' in survey ? survey.end_date || '' : survey.endDate || '';
+
+    return {
+      id: String(survey.id),
+      category: survey.category || 'General',
       title: survey.title,
-      endDate: survey.end_date,
-    }));
+      endDate,
+      endingLabel: this.getEndingLabel(endDate),
+      sortValue: this.getSortValue(endDate),
+    };
+  }
+
+  private mergeSurveys(dbSurveys: Survey[], localSurveys: Survey[]) {
+    const merged = new Map<string, Survey>();
+
+    for (const survey of localSurveys) {
+      merged.set(survey.id, survey);
+    }
+
+    for (const survey of dbSurveys) {
+      merged.set(survey.id, survey);
+    }
+
+    return Array.from(merged.values()).sort((a, b) => b.sortValue - a.sortValue);
+  }
+
+  private getLocalSurveys() {
+    const localSurveys: LocalSurvey[] = JSON.parse(
+      localStorage.getItem('publishedSurveys') || '[]'
+    );
+
+    return localSurveys.map(survey => this.mapSurvey(survey));
+  }
+
+  private loadFromLocal(localSurveys: Survey[], notice: string) {
+    this.surveys = localSurveys;
+    this.loadNotice = notice;
+    this.updateEndingSoonSurveys();
+  }
+
+  private updateEndingSoonSurveys() {
+    this.endingSoonSurveys = [...this.surveys]
+      .sort((a, b) => a.sortValue - b.sortValue)
+      .slice(0, 3);
+  }
+
+  private getEndingLabel(endDate: string) {
+    if (!endDate) {
+      return 'No end date';
+    }
+
+    const parsedDate = new Date(endDate);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return `Ends on ${endDate}`;
+    }
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    parsedDate.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.ceil(
+      (parsedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diffDays < 0) {
+      return 'Ended';
+    }
+
+    if (diffDays === 0) {
+      return 'Ends today';
+    }
+
+    if (diffDays === 1) {
+      return 'Ends in 1 Day';
+    }
+
+    return `Ends in ${diffDays} Days`;
+  }
+
+  private getSortValue(endDate: string) {
+    const parsedDate = new Date(endDate);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return Number.MAX_SAFE_INTEGER;
+    }
+
+    return parsedDate.getTime();
+  }
+
+  private withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
+    return Promise.race<T>([
+      promise,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error(message)), timeoutMs)
+      ),
+    ]);
   }
 }

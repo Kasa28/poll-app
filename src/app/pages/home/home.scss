@@ -1,0 +1,271 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #2f2038;
+  color: #fff7ec;
+}
+
+.header {
+  padding: 18px 0;
+  text-align: center;
+  background: #d9d1d5;
+  color: #fff7ec;
+  font-size: 14px;
+}
+
+.home-page {
+  width: min(920px, calc(100vw - 64px));
+  margin: 0 auto;
+  padding: 26px 0 40px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 28px;
+  align-items: center;
+  margin-bottom: 42px;
+}
+
+.hero-copy {
+  max-width: 520px;
+}
+
+.hero-logo {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: #ffc68d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin: 0 0 16px;
+  color: #ffa142;
+  font-family: 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-size: 48px;
+  line-height: 1.06;
+}
+
+.hero p {
+  max-width: 420px;
+  margin: 0 0 18px;
+  color: #f2e7df;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.new-survey-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #ffc68d;
+  color: #2f2038;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.hero-card {
+  position: relative;
+  min-height: 280px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-badge {
+  position: absolute;
+  top: 32px;
+  right: 42px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffc68d;
+  color: #39293f;
+  font-weight: 800;
+}
+
+.hero-phone {
+  width: 112px;
+  height: 170px;
+  padding: 18px 14px;
+  border: 6px solid #ddd6e3;
+  border-radius: 18px;
+  background: #fbf8fc;
+  box-shadow: 0 18px 26px rgba(20, 10, 28, 0.22);
+  transform: rotate(4deg);
+}
+
+.hero-phone-line {
+  height: 8px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  background: #f2bb84;
+}
+
+.hero-phone-line.short {
+  width: 68%;
+}
+
+.survey-section {
+  padding-bottom: 12px;
+}
+
+.section-title {
+  margin: 0 0 24px;
+  text-align: center;
+  color: #ffb15d;
+  font-family: 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-size: 28px;
+}
+
+.load-notice {
+  margin: 0 0 18px;
+  color: #ffc68d;
+  font-size: 13px;
+  text-align: center;
+}
+
+.ending-soon h3 {
+  margin: 0 0 14px;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.ending-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.ending-card {
+  min-height: 250px;
+  padding: 32px;
+  border-radius: 0 58px 0 0;
+  background: #f7f2f8;
+  color: #39293f;
+  text-decoration: none;
+
+  small {
+    display: block;
+    margin-bottom: 10px;
+    color: #5d5063;
+    font-size: 12px;
+  }
+
+  h4 {
+    margin: 0 0 78px;
+    font-size: 22px;
+    line-height: 1.18;
+  }
+
+  span {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #ffc68d;
+    color: #39293f;
+    font-size: 12px;
+  }
+}
+
+.survey-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 10px;
+}
+
+.pill,
+.sort-btn {
+  border: 0;
+  cursor: pointer;
+  background: transparent;
+  color: #fff7ec;
+  font-weight: 700;
+}
+
+.pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #d8c8c0;
+  color: #39293f;
+  font-size: 12px;
+}
+
+.pill.active {
+  background: #f2e7df;
+}
+
+.sort-btn {
+  font-size: 14px;
+}
+
+.survey-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+}
+
+.survey-row {
+  padding: 12px 18px 14px;
+  border-radius: 0 34px 0 0;
+  background: #4b3952;
+  color: #fff7ec;
+  text-decoration: none;
+
+  small {
+    display: block;
+    margin-bottom: 4px;
+    color: #e0bf97;
+    font-size: 14px;
+  }
+
+  h3 {
+    margin: 0 0 14px;
+    font-size: 18px;
+    line-height: 1.2;
+  }
+
+  span {
+    float: right;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: #ffc68d;
+    color: #39293f;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-page {
+    width: min(100%, calc(100vw - 32px));
+  }
+
+  .hero,
+  .ending-grid,
+  .survey-list {
+    grid-template-columns: 1fr;
+  }
+
+  .top-bar,
+  .survey-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .hero-card {
+    min-height: 200px;
+  }
+}
