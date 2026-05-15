@@ -1,12 +1,12 @@
-<header class="header">
-  <span>Poll App Design</span>
-</header>
-
 <main class="home-page">
   <section class="hero">
     <div class="hero-copy">
-      <span class="hero-logo">Poll App</span>
-      <h1>Collect Feedback,<br />Unlock Ideas</h1>
+      <img class="hero-logo" src="/logo.svg" alt="Poll App" />
+
+      <h1>
+        Collect Feedback,<br />
+        Unlock Ideas
+      </h1>
 
       <p>
         Create and share surveys in minutes - from team events to workplace culture.
@@ -16,15 +16,13 @@
       <a routerLink="/create" class="new-survey-btn">New survey</a>
     </div>
 
-    <div class="hero-card">
-      <span class="hero-badge">?</span>
-      <div class="hero-phone">
-        <div class="hero-phone-line short"></div>
-        <div class="hero-phone-line"></div>
-        <div class="hero-phone-line"></div>
-        <div class="hero-phone-line short"></div>
-      </div>
-    </div>
+    <div class="hero-visual" aria-hidden="true">
+  <img class="hero-visual-img hero-visual-default" src="/without_hover.svg" alt="" />
+  <img class="hero-visual-img hero-visual-hover" src="/hover.svg" alt="" />
+
+  <img class="hero-hover-dots" src="/hover-check.svg" alt="" />
+  <img class="hero-hover-check" src="/hover-dots.svg" alt="" />
+</div>
   </section>
 
   <section class="survey-section">
