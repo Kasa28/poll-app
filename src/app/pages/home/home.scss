@@ -4,6 +4,7 @@
   background: #2f2038;
   color: #fff7ec;
   font-family: 'Mulish', sans-serif;
+  overflow-x: hidden;
 }
 
 .home-page {
@@ -225,6 +226,7 @@
 }
 
 .ending-card {
+  min-width: 0;
   min-height: 250px;
   padding: 32px;
   border-radius: 0 58px 0 0;
@@ -347,6 +349,7 @@
 }
 
 .survey-row {
+  min-width: 0;
   padding: 12px 18px 14px;
   border-radius: 0 34px 0 0;
   background: #4b3952;
@@ -384,7 +387,8 @@
 
 @media (max-width: 900px) {
   .home-page {
-    width: min(100%, calc(100vw - 32px));
+    width: min(100%, calc(100vw - 24px));
+    padding: 18px 0 28px;
   }
 
   .hero,
@@ -395,13 +399,18 @@
 
   .hero {
     gap: 18px;
-    margin-bottom: 48px;
+    margin-bottom: 42px;
   }
 
   .survey-toolbar {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .filter-pills {
+    display: none;
   }
 
   .hero-logo {
@@ -419,7 +428,84 @@
   }
 
   .section-title {
-    font-size: 44px;
+    margin-bottom: 18px;
+    font-size: 40px;
+  }
+
+  .ending-grid {
+    gap: 16px;
+  }
+
+  .ending-card {
+    min-height: 0;
+    padding: 20px;
+  }
+
+  .ending-card h4 {
+    margin-bottom: 48px;
+  }
+
+  .sort-menu {
+    width: 100%;
+    max-width: 166px;
+  }
+
+  .sort-btn {
+    min-width: 0;
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #5a485f;
+    font-size: 12px;
+  }
+
+  .sort-btn span {
+    color: #ffc68d;
+  }
+
+  .sort-dropdown {
+    width: 100%;
+    position: static;
+    margin-top: 6px;
+    padding: 4px 0;
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 14px 22px rgba(20, 10, 28, 0.22);
+  }
+
+  .sort-option {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .survey-list {
+    gap: 14px;
+  }
+
+  .survey-row {
+    min-height: 116px;
+    padding: 14px 16px 18px;
+    border-radius: 0 34px 0 0;
+    background: #4b3952;
+  }
+
+  .survey-row small {
+    margin-bottom: 10px;
+    color: #ffc68d;
+    font-size: 12px;
+  }
+
+  .survey-row h3 {
+    max-width: 220px;
+    margin-bottom: 36px;
+    font-size: 18px;
+    line-height: 1.2;
+  }
+
+  .survey-row span {
+    float: none;
+    margin-left: auto;
+    display: table;
+    font-size: 12px;
   }
 
   .hero-visual {

@@ -78,7 +78,8 @@ export class SurveyDetail {
 
   private startLoadingWatchdog() {
     this.loadingTimeoutId = window.setTimeout(() => this.handleLoadingTimeout(), 8000);
-  
+  }
+
   private clearLoadingWatchdog() {
     if (this.loadingTimeoutId) {
       clearTimeout(this.loadingTimeoutId);
@@ -137,6 +138,12 @@ export class SurveyDetail {
 
   getAnswerLetter(answerIndex: number) {
     return String.fromCharCode(65 + answerIndex);
+  }
+
+  getSelectionHint(question: QuestionBlock) {
+    return question.allowMultiple
+      ? 'More than one answer is possible.'
+      : 'Only one answer can be selected.';
   }
 
   private async loadSurvey() {

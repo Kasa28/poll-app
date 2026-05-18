@@ -51,7 +51,7 @@
         >
           <h3>{{ questionIndex + 1 }}. {{ question.text }}</h3>
 
-          <small>More than one answers are possible.</small>
+          <small>{{ getSelectionHint(question) }}</small>
 
           <label class="answer-option" *ngFor="let answer of question.answers; let answerIndex = index">
             <input
