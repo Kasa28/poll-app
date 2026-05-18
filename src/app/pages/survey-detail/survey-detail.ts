@@ -134,7 +134,7 @@ export class SurveyDetail {
     const voteRows = this.getSelectedVoteRows();
 
     if (!voteRows.length) {
-      this.submitMessageSignal.set('Please select at least one answer before completing the survey.');
+      await this.router.navigate(['/']);
       return;
     }
 
@@ -167,7 +167,7 @@ export class SurveyDetail {
 
     this.selectedAnswersSignal.set({
       ...selectedAnswers,
-      [questionIndex]: question.allowMultiple
+      [questionIndex]: question?.allowMultiple
         ? this.toggleAnswer(selected, answerIndex)
         : [answerIndex],
     });
@@ -186,6 +186,12 @@ export class SurveyDetail {
     }
 
     return Math.round(((questionVotes[answerIndex] || 0) / total) * 100);
+  }
+
+  hasLiveResults() {
+    return Object.values(this.liveVotes()).some(questionVotes =>
+      Object.values(questionVotes).some(count => count > 0)
+    );
   }
 
   getAnswerLabel(answerIndex: number) {

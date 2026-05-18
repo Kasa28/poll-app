@@ -203,42 +203,13 @@
     }
 
     .ghost-icon {
-      position: relative;
       width: 16px;
       height: 18px;
       flex: none;
       border: 0;
       padding: 0;
-      background: transparent;
-      color: #fff7ec;
+      background: center / contain no-repeat url('/delete.svg');
       cursor: pointer;
-    }
-
-    .ghost-icon::before {
-      content: '';
-      position: absolute;
-      left: 3px;
-      right: 3px;
-      top: 5px;
-      bottom: 1px;
-      border: 1.8px solid rgba(255, 247, 236, 0.98);
-      border-top: 0;
-      border-radius: 0 0 2px 2px;
-    }
-
-    .ghost-icon::after {
-      content: '';
-      position: absolute;
-      left: 2px;
-      right: 2px;
-      top: 2px;
-      height: 2px;
-      border-radius: 999px;
-      background: rgba(255, 247, 236, 0.98);
-      box-shadow:
-        0 3px 0 -1px transparent,
-        4px -1px 0 -1px rgba(255, 247, 236, 0.98),
-        -4px -1px 0 -1px rgba(255, 247, 236, 0.98);
     }
 
     .category-btn {
@@ -328,7 +299,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 6px;
 
       strong {
         font-size: 15px;
@@ -384,13 +355,33 @@
       color: rgba(255, 247, 236, 0.72);
       font-size: 11px;
     }
-
     .add-question-panel {
       padding-top: 26px;
     }
 
     .add-question-btn {
-      background: #94695a;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #8f6656;
+      transition: background 180ms ease;
+    }
+
+    .add-question-btn-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(255, 247, 236, 0.95);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .add-question-btn:hover {
+      background: #a57765;
     }
   }
 

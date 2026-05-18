@@ -51,6 +51,11 @@ export class CreateSurvey {
       allowMultiple: false,
       answers: ['', ''],
     },
+    {
+      text: 'Choose the activities you prefer?',
+      allowMultiple: false,
+      answers: ['', ''],
+    },
   ];
 
   constructor(private router: Router) {}
@@ -60,7 +65,7 @@ export class CreateSurvey {
   }
 
   get additionalQuestions() {
-    return this.questions.slice(1);
+    return this.questions.slice(2);
   }
 
   get canPublish() {
@@ -106,6 +111,10 @@ export class CreateSurvey {
     this.questions[questionIndex].text = '';
   }
 
+  removeQuestion(questionIndex: number) {
+    this.questions.splice(questionIndex, 1);
+  }
+
   clearAnswer(questionIndex: number, answerIndex: number) {
     this.questions[questionIndex].answers[answerIndex] = '';
   }
@@ -124,6 +133,24 @@ export class CreateSurvey {
       allowMultiple: false,
       answers: ['', ''],
     });
+  }
+
+  getQuestionPlaceholder(questionIndex: number) {
+    if (questionIndex === 0) {
+      return 'Which date would work best for you?';
+    }
+
+    if (questionIndex === 1) {
+      return 'Choose the activities you prefer?';
+    }
+
+    return '';
+  }
+
+  getSelectionHint(question: QuestionBlock) {
+    return question.allowMultiple
+      ? 'More than one answer is possible.'
+      : 'Only one answer can be selected.';
   }
 
   async publishSurvey() {
