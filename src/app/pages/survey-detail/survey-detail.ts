@@ -47,31 +47,11 @@ export class SurveyDetail {
   dataSource: 'database' | 'local' | '' = '';
   sourceNotice = '';
   private loadingTimeoutId?: number;
-
   private selectedAnswersSignal = signal<Record<number, number[]>>({});
   private baseVotesSignal = signal<Record<number, Record<number, number>>>({});
   private isSubmittingSignal = signal(false);
   private submitMessageSignal = signal('');
-  private liveVotes = computed(() => {
-    const mergedVotes: Record<number, Record<number, number>> = {};
-    const baseVotes = this.baseVotesSignal();
-
-    for (const [questionIndex, answers] of Object.entries(baseVotes)) {
-      mergedVotes[Number(questionIndex)] = { ...answers };
-    }
-
-    for (const [questionIndex, answerIndexes] of Object.entries(this.selectedAnswersSignal())) {
-      const numericQuestionIndex = Number(questionIndex);
-      mergedVotes[numericQuestionIndex] ??= {};
-
-      for (const answerIndex of answerIndexes) {
-        mergedVotes[numericQuestionIndex][answerIndex] ??= 0;
-        mergedVotes[numericQuestionIndex][answerIndex] += 1;
-      }
-    }
-
-    return mergedVotes;
-  });
+  private liveVotes = computed(() => this.buildLiveVotes());
 
   constructor(
     private route: ActivatedRoute,
@@ -89,35 +69,16 @@ export class SurveyDetail {
 
   async ngOnInit() {
     this.startLoadingWatchdog();
-
     try {
       await this.loadSurvey();
       await this.loadVotes();
-    } catch (error) {
-      console.log('Survey detail init error:', error);
-      this.errorMessage = 'Survey could not be loaded.';
-      this.errorDetails = error instanceof Error ? error.message : String(error);
-    } finally {
-      this.clearLoadingWatchdog();
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }
+    } catch (error) { this.handleInitError(error); }
+    finally { this.finishLoading(); }
   }
 
   private startLoadingWatchdog() {
-    this.loadingTimeoutId = window.setTimeout(() => {
-      if (!this.isLoading) {
-        return;
-      }
-
-      this.errorMessage = 'Survey loading timed out.';
-      this.errorDetails =
-        'The detail page waited too long for the survey or votes request to finish.';
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }, 8000);
-  }
-
+    this.loadingTimeoutId = window.setTimeout(() => this.handleLoadingTimeout(), 8000);
+  
   private clearLoadingWatchdog() {
     if (this.loadingTimeoutId) {
       clearTimeout(this.loadingTimeoutId);
@@ -126,45 +87,23 @@ export class SurveyDetail {
   }
 
   async completeSurvey() {
-    if (!this.survey) {
-      return;
-    }
-
+    if (!this.survey) return;
     this.submitMessageSignal.set('');
     const voteRows = this.getSelectedVoteRows();
-
-    if (!voteRows.length) {
-      await this.router.navigate(['/']);
-      return;
-    }
-
+    if (!voteRows.length) return this.navigateHome();
     this.isSubmittingSignal.set(true);
     const { error } = await supabase.from('votes').insert(voteRows);
-
-    if (error) {
-      this.submitMessageSignal.set('Votes could not be saved.');
-      console.log('Vote insert error:', error);
-      this.isSubmittingSignal.set(false);
-      return;
-    }
-
-    this.baseVotesSignal.set(this.liveVotes());
-    this.selectedAnswersSignal.set({});
-    this.submitMessageSignal.set('Survey completed.');
-    await this.loadVotes();
-    this.isSubmittingSignal.set(false);
-    await this.router.navigate(['/']);
+    if (error) return this.handleVoteInsertError(error);
+    await this.finishSurveySubmission();
   }
 
   selectAnswer(questionIndex: number, answerIndex: number) {
     if (!this.survey) {
       return;
     }
-
     const selectedAnswers = this.selectedAnswersSignal();
     const selected = selectedAnswers[questionIndex] || [];
     const question = this.survey.questions[questionIndex];
-
     this.selectedAnswersSignal.set({
       ...selectedAnswers,
       [questionIndex]: question?.allowMultiple
@@ -180,11 +119,9 @@ export class SurveyDetail {
   getPercentage(questionIndex: number, answerIndex: number) {
     const questionVotes = this.liveVotes()[questionIndex] || {};
     const total = Object.values(questionVotes).reduce((sum, value) => sum + value, 0);
-
     if (!total) {
       return 0;
     }
-
     return Math.round(((questionVotes[answerIndex] || 0) / total) * 100);
   }
 
@@ -204,71 +141,17 @@ export class SurveyDetail {
 
   private async loadSurvey() {
     const surveyId = this.route.snapshot.paramMap.get('id');
-
-    if (!surveyId) {
-      this.errorMessage = 'Survey could not be loaded.';
-      this.errorDetails = 'Missing survey id in route.';
-      return;
-    }
-
+    if (!surveyId) return this.setMissingSurveyError();
     const localSurvey = this.getLocalSurvey(surveyId);
-
-    const { data, error } = await this.withTimeout<{ data: SurveyRow | null; error: { message: string } | null }>(
-      Promise.resolve(
-        supabase
-          .from('surveys')
-          .select('*')
-          .eq('id', surveyId)
-          .maybeSingle()
-      ),
-      8000,
-      'Survey request timed out.'
-    );
-
-    if (data) {
-      this.survey = this.mapSurveyRow(data);
-      this.dataSource = 'database';
-      this.sourceNotice = '';
-      this.errorMessage = '';
-      this.errorDetails = '';
-      return;
-    }
-
-    if (error || !data) {
-      if (localSurvey) {
-        this.survey = localSurvey;
-        this.dataSource = 'local';
-        this.sourceNotice =
-          'Survey was loaded from local storage because the database did not return a row.';
-        console.log('Survey loaded from local storage fallback.');
-        return;
-      }
-
-      this.errorMessage = 'Survey could not be loaded.';
-      this.errorDetails = error?.message || 'No survey was returned from Supabase.';
-      console.log('Survey load error:', error);
-      this.dataSource = '';
-      this.sourceNotice = '';
-      return;
-    }
+    const result = await this.fetchSurvey(surveyId);
+    if (result.data) return this.applyDatabaseSurvey(result.data);
+    if (localSurvey) return this.applyLocalSurvey(localSurvey);
+    this.applySurveyLoadError(result.error);
   }
 
   private getLocalSurvey(surveyId: string): Survey | undefined {
-    const surveys = JSON.parse(localStorage.getItem('publishedSurveys') || '[]');
-    const survey = surveys.find((entry: Survey) => entry.id === surveyId);
-
-    if (!survey) {
-      return undefined;
-    }
-
-    return {
-      id: survey.id,
-      title: survey.title,
-      description: survey.description,
-      endDate: survey.endDate,
-      category: survey.category,
-      questions: this.normalizeQuestions(survey.questions),
-    };
+    const survey = this.getStoredSurveys().find(entry => entry.id === surveyId);
+    return survey ? this.mapLocalSurvey(survey) : undefined;
   }
 
   private mapSurveyRow(row: SurveyRow): Survey {
@@ -283,55 +166,24 @@ export class SurveyDetail {
   }
 
   private normalizeQuestions(questions: QuestionBlock[] | string | null | undefined) {
-    if (!questions) {
-      return [];
-    }
-
-    if (Array.isArray(questions)) {
-      return questions;
-    }
-
+    if (!questions) return [];
+    if (Array.isArray(questions)) return questions;
     try {
-      const parsed = JSON.parse(questions);
-      return Array.isArray(parsed) ? parsed : [];
+      return this.parseQuestions(questions);
     } catch (error) {
-      console.log('Question parse error:', error);
-      this.errorMessage = 'Survey data has an invalid question format.';
-      this.errorDetails = 'The questions field could not be parsed into an array.';
-      return [];
+      return this.handleQuestionParseError(error);
     }
   }
 
   private async loadVotes() {
-    if (!this.survey) {
-      return;
-    }
-
-    const { data, error } = await this.withTimeout<{ data: VoteRow[] | null; error: { message: string } | null }>(
-      Promise.resolve(
-        supabase
-          .from('votes')
-          .select('question_index, answer_index')
-          .eq('survey_id', this.survey.id)
-      ),
-      8000,
-      'Vote request timed out.'
-    );
-
-    if (error) {
-      this.errorDetails = error.message;
-      console.log('Vote load error:', error);
-      return;
-    }
-
-    this.baseVotesSignal.set(this.countVotes(data || []));
+    if (!this.survey) return;
+    const result = await this.fetchVotes(this.survey.id);
+    if (result.error) return this.handleVoteLoadError(result.error);
+    this.baseVotesSignal.set(this.countVotes(result.data || []));
   }
 
   private getSelectedVoteRows() {
-    if (!this.survey) {
-      return [];
-    }
-
+    if (!this.survey) return [];
     return Object.entries(this.selectedAnswersSignal()).flatMap(
       ([questionIndex, answerIndexes]) =>
         answerIndexes.map(answerIndex => ({
@@ -365,5 +217,141 @@ export class SurveyDetail {
         setTimeout(() => reject(new Error(message)), timeoutMs)
       ),
     ]);
+  }
+
+  private buildLiveVotes() {
+    const mergedVotes = this.copyBaseVotes();
+    this.applySelectedVotes(mergedVotes);
+    return mergedVotes;
+  }
+
+  private copyBaseVotes() {
+    return Object.fromEntries(
+      Object.entries(this.baseVotesSignal()).map(([index, answers]) => [Number(index), { ...answers }])
+    );
+  }
+
+  private applySelectedVotes(mergedVotes: Record<number, Record<number, number>>) {
+    for (const [questionIndex, answerIndexes] of Object.entries(this.selectedAnswersSignal())) {
+      this.incrementSelectedAnswers(mergedVotes, Number(questionIndex), answerIndexes);
+    }
+  }
+
+  private incrementSelectedAnswers(mergedVotes: Record<number, Record<number, number>>, questionIndex: number, answerIndexes: number[]) {
+    mergedVotes[questionIndex] ??= {};
+    for (const answerIndex of answerIndexes) this.incrementVote(mergedVotes[questionIndex], answerIndex);
+  }
+
+  private incrementVote(questionVotes: Record<number, number>, answerIndex: number) {
+    questionVotes[answerIndex] ??= 0;
+    questionVotes[answerIndex] += 1;
+  }
+
+  private handleInitError(error: unknown) {
+    console.log('Survey detail init error:', error);
+    this.errorMessage = 'Survey could not be loaded.';
+    this.errorDetails = error instanceof Error ? error.message : String(error);
+  }
+
+  private finishLoading() {
+    this.clearLoadingWatchdog();
+    this.isLoading = false;
+    this.cdr.detectChanges();
+  }
+
+  private handleLoadingTimeout() {
+    if (!this.isLoading) return;
+    this.errorMessage = 'Survey loading timed out.';
+    this.errorDetails = 'The detail page waited too long for the survey or votes request to finish.';
+    this.isLoading = false;
+    this.cdr.detectChanges();
+  }
+
+  private navigateHome() {
+    return this.router.navigate(['/']);
+  }
+
+  private handleVoteInsertError(error: { message?: string }) {
+    this.submitMessageSignal.set('Votes could not be saved.');
+    console.log('Vote insert error:', error);
+    this.isSubmittingSignal.set(false);
+  }
+
+  private async finishSurveySubmission() {
+    this.baseVotesSignal.set(this.liveVotes());
+    this.selectedAnswersSignal.set({});
+    this.submitMessageSignal.set('Survey completed.');
+    await this.loadVotes();
+    this.isSubmittingSignal.set(false);
+    await this.navigateHome();
+  }
+
+  private setMissingSurveyError() {
+    this.errorMessage = 'Survey could not be loaded.';
+    this.errorDetails = 'Missing survey id in route.';
+  }
+
+  private fetchSurvey(surveyId: string) {
+    return this.withTimeout<{ data: SurveyRow | null; error: { message: string } | null }>(
+      Promise.resolve(supabase.from('surveys').select('*').eq('id', surveyId).maybeSingle()),
+      8000,
+      'Survey request timed out.'
+    );
+  }
+
+  private applyDatabaseSurvey(data: SurveyRow) {
+    this.survey = this.mapSurveyRow(data);
+    this.dataSource = 'database';
+    this.sourceNotice = '';
+    this.errorMessage = '';
+    this.errorDetails = '';
+  }
+
+  private applyLocalSurvey(localSurvey: Survey) {
+    this.survey = localSurvey;
+    this.dataSource = 'local';
+    this.sourceNotice = 'Survey was loaded from local storage because the database did not return a row.';
+    console.log('Survey loaded from local storage fallback.');
+  }
+
+  private applySurveyLoadError(error: { message: string } | null) {
+    this.errorMessage = 'Survey could not be loaded.';
+    this.errorDetails = error?.message || 'No survey was returned from Supabase.';
+    console.log('Survey load error:', error);
+    this.dataSource = '';
+    this.sourceNotice = '';
+  }
+
+  private getStoredSurveys(): Survey[] {
+    return JSON.parse(localStorage.getItem('publishedSurveys') || '[]');
+  }
+
+  private mapLocalSurvey(survey: Survey): Survey {
+    return { ...survey, questions: this.normalizeQuestions(survey.questions) };
+  }
+
+  private parseQuestions(questions: string) {
+    const parsed = JSON.parse(questions);
+    return Array.isArray(parsed) ? parsed : [];
+  }
+
+  private handleQuestionParseError(error: unknown) {
+    console.log('Question parse error:', error);
+    this.errorMessage = 'Survey data has an invalid question format.';
+    this.errorDetails = 'The questions field could not be parsed into an array.';
+    return [];
+  }
+
+  private fetchVotes(surveyId: string) {
+    return this.withTimeout<{ data: VoteRow[] | null; error: { message: string } | null }>(
+      Promise.resolve(supabase.from('votes').select('question_index, answer_index').eq('survey_id', surveyId)),
+      8000,
+      'Vote request timed out.'
+    );
+  }
+
+  private handleVoteLoadError(error: { message: string }) {
+    this.errorDetails = error.message;
+    console.log('Vote load error:', error);
   }
 }

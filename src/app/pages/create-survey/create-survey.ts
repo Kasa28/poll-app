@@ -44,7 +44,6 @@ export class CreateSurvey {
   publishError = '';
   isPublishing = false;
   showPublishSuccess = false;
-
   questions: QuestionBlock[] = [
     {
       text: 'Which date would work best for you?',
@@ -121,7 +120,6 @@ export class CreateSurvey {
 
   addAnswer(questionIndex: number) {
     const question = this.questions[questionIndex];
-
     if (question.answers.length < 6) {
       question.answers.push('');
     }
@@ -139,11 +137,9 @@ export class CreateSurvey {
     if (questionIndex === 0) {
       return 'Which date would work best for you?';
     }
-
     if (questionIndex === 1) {
       return 'Choose the activities you prefer?';
     }
-
     return '';
   }
 
@@ -155,82 +151,19 @@ export class CreateSurvey {
 
   async publishSurvey() {
     this.publishError = '';
-
-    if (!this.isFormValid()) {
-      this.publishError = 'Please fill out all fields before publishing.';
-      return;
-    }
-
+    if (!this.isFormValid()) return this.setPublishError();
     this.isPublishing = true;
-
-    const survey: PublishedSurvey = {
-      id: crypto.randomUUID(),
-      title: this.surveyTitle.trim(),
-      description: this.surveyDescription.trim(),
-      endDate: this.surveyEndDate,
-      category: this.selectedCategory,
-      questions: this.normalizeQuestions(),
-    };
-
-    const savedSurveys = JSON.parse(
-      localStorage.getItem('publishedSurveys') || '[]'
-    );
-
-    savedSurveys.unshift(survey);
-
-    localStorage.setItem('publishedSurveys', JSON.stringify(savedSurveys));
-    localStorage.setItem('publishedSurvey', JSON.stringify(survey));
-
-    const insertPayload = {
-      title: survey.title,
-      description: survey.description,
-      end_date: survey.endDate,
-      category: survey.category,
-      questions: survey.questions,
-    };
-
-    let { data, error } = await supabase
-      .from('surveys')
-      .insert({
-        id: survey.id,
-        ...insertPayload,
-      })
-      .select('id')
-      .single();
-
-    if (error) {
-      console.log('Survey publish with custom id failed:', error);
-
-      const retryResult = await supabase
-        .from('surveys')
-        .insert(insertPayload)
-        .select('id')
-        .single();
-
-      data = retryResult.data;
-      error = retryResult.error;
-    }
-
-    if (error) {
-      console.log('Survey publish error:', error);
-      this.publishError = `Survey publish failed: ${error.message}`;
-      this.isPublishing = false;
-      return;
-    }
-
-    const savedSurveyId = String(data?.id ?? survey.id);
-    this.replaceLocalSurveyId(survey.id, savedSurveyId);
-
-    this.showPublishSuccess = true;
-    await this.delay(3000);
-    await this.router.navigate(['/survey', savedSurveyId]);
+    const survey = this.buildSurvey();
+    this.saveSurveyLocally(survey);
+    const result = await this.insertSurvey(survey);
+    if (result.error) return this.handlePublishError(result.error);
+    await this.finishPublish(survey.id, String(result.data?.id ?? survey.id));
   }
 
   private isFormValid() {
     if (!this.surveyTitle.trim() || !this.surveyEndDate || !this.selectedCategory) {
       return false;
     }
-
     return this.questions.every(
       question =>
         question.text.trim() &&
@@ -248,21 +181,75 @@ export class CreateSurvey {
   }
 
   private replaceLocalSurveyId(oldId: string, newId: string) {
-    const savedSurveys: PublishedSurvey[] = JSON.parse(
-      localStorage.getItem('publishedSurveys') || '[]'
-    );
-
-    const updatedSurveys = savedSurveys.map(survey =>
+    const updatedSurveys = this.getSavedSurveys().map(survey =>
       survey.id === oldId ? { ...survey, id: newId } : survey
     );
-
-    const updatedSurvey = updatedSurveys.find(survey => survey.id === newId);
-
     localStorage.setItem('publishedSurveys', JSON.stringify(updatedSurveys));
+    const updatedSurvey = updatedSurveys.find(survey => survey.id === newId);
+    if (updatedSurvey) localStorage.setItem('publishedSurvey', JSON.stringify(updatedSurvey));
+  }
 
-    if (updatedSurvey) {
-      localStorage.setItem('publishedSurvey', JSON.stringify(updatedSurvey));
-    }
+  private setPublishError() {
+    this.publishError = 'Please fill out all fields before publishing.';
+  }
+
+  private buildSurvey(): PublishedSurvey {
+    return {
+      id: crypto.randomUUID(),
+      title: this.surveyTitle.trim(),
+      description: this.surveyDescription.trim(),
+      endDate: this.surveyEndDate,
+      category: this.selectedCategory,
+      questions: this.normalizeQuestions(),
+    };
+  }
+
+  private saveSurveyLocally(survey: PublishedSurvey) {
+    const savedSurveys = this.getSavedSurveys();
+    savedSurveys.unshift(survey);
+    localStorage.setItem('publishedSurveys', JSON.stringify(savedSurveys));
+    localStorage.setItem('publishedSurvey', JSON.stringify(survey));
+  }
+
+  private getSavedSurveys(): PublishedSurvey[] {
+    return JSON.parse(localStorage.getItem('publishedSurveys') || '[]');
+  }
+
+  private getInsertPayload(survey: PublishedSurvey) {
+    return {
+      title: survey.title,
+      description: survey.description,
+      end_date: survey.endDate,
+      category: survey.category,
+      questions: survey.questions,
+    };
+  }
+
+  private async insertSurvey(survey: PublishedSurvey) {
+    const firstTry = await this.insertWithId(survey);
+    return firstTry.error ? this.retrySurveyInsert(survey, firstTry.error) : firstTry;
+  }
+
+  private insertWithId(survey: PublishedSurvey) {
+    return supabase.from('surveys').insert({ id: survey.id, ...this.getInsertPayload(survey) }).select('id').single();
+  }
+
+  private async retrySurveyInsert(survey: PublishedSurvey, error: { message: string }) {
+    console.log('Survey publish with custom id failed:', error);
+    return supabase.from('surveys').insert(this.getInsertPayload(survey)).select('id').single();
+  }
+
+  private handlePublishError(error: { message: string }) {
+    console.log('Survey publish error:', error);
+    this.publishError = `Survey publish failed: ${error.message}`;
+    this.isPublishing = false;
+  }
+
+  private async finishPublish(oldId: string, newId: string) {
+    this.replaceLocalSurveyId(oldId, newId);
+    this.showPublishSuccess = true;
+    await this.delay(3000);
+    await this.router.navigate(['/survey', newId]);
   }
 
   private delay(ms: number) {
