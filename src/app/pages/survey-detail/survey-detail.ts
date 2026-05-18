@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { supabase } from '../../supabase';
 
@@ -48,14 +48,44 @@ export class SurveyDetail {
   sourceNotice = '';
   private loadingTimeoutId?: number;
 
-  selectedAnswers: Record<number, number[]> = {};
-  votes: Record<number, Record<number, number>> = {};
+  private selectedAnswersSignal = signal<Record<number, number[]>>({});
+  private baseVotesSignal = signal<Record<number, Record<number, number>>>({});
+  private isSubmittingSignal = signal(false);
+  private submitMessageSignal = signal('');
+  private liveVotes = computed(() => {
+    const mergedVotes: Record<number, Record<number, number>> = {};
+    const baseVotes = this.baseVotesSignal();
+
+    for (const [questionIndex, answers] of Object.entries(baseVotes)) {
+      mergedVotes[Number(questionIndex)] = { ...answers };
+    }
+
+    for (const [questionIndex, answerIndexes] of Object.entries(this.selectedAnswersSignal())) {
+      const numericQuestionIndex = Number(questionIndex);
+      mergedVotes[numericQuestionIndex] ??= {};
+
+      for (const answerIndex of answerIndexes) {
+        mergedVotes[numericQuestionIndex][answerIndex] ??= 0;
+        mergedVotes[numericQuestionIndex][answerIndex] += 1;
+      }
+    }
+
+    return mergedVotes;
+  });
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
+
+  get isSubmitting() {
+    return this.isSubmittingSignal();
+  }
+
+  get submitMessage() {
+    return this.submitMessageSignal();
+  }
 
   async ngOnInit() {
     this.startLoadingWatchdog();
@@ -100,22 +130,29 @@ export class SurveyDetail {
       return;
     }
 
+    this.submitMessageSignal.set('');
     const voteRows = this.getSelectedVoteRows();
 
     if (!voteRows.length) {
+      this.submitMessageSignal.set('Please select at least one answer before completing the survey.');
       return;
     }
 
+    this.isSubmittingSignal.set(true);
     const { error } = await supabase.from('votes').insert(voteRows);
 
     if (error) {
-      this.errorMessage = 'Votes could not be saved.';
+      this.submitMessageSignal.set('Votes could not be saved.');
       console.log('Vote insert error:', error);
+      this.isSubmittingSignal.set(false);
       return;
     }
 
-    this.selectedAnswers = {};
+    this.baseVotesSignal.set(this.liveVotes());
+    this.selectedAnswersSignal.set({});
+    this.submitMessageSignal.set('Survey completed.');
     await this.loadVotes();
+    this.isSubmittingSignal.set(false);
     await this.router.navigate(['/']);
   }
 
@@ -124,20 +161,24 @@ export class SurveyDetail {
       return;
     }
 
-    const selected = this.selectedAnswers[questionIndex] || [];
+    const selectedAnswers = this.selectedAnswersSignal();
+    const selected = selectedAnswers[questionIndex] || [];
     const question = this.survey.questions[questionIndex];
 
-    this.selectedAnswers[questionIndex] = question.allowMultiple
-      ? this.toggleAnswer(selected, answerIndex)
-      : [answerIndex];
+    this.selectedAnswersSignal.set({
+      ...selectedAnswers,
+      [questionIndex]: question.allowMultiple
+        ? this.toggleAnswer(selected, answerIndex)
+        : [answerIndex],
+    });
   }
 
   isSelected(questionIndex: number, answerIndex: number) {
-    return (this.selectedAnswers[questionIndex] || []).includes(answerIndex);
+    return (this.selectedAnswersSignal()[questionIndex] || []).includes(answerIndex);
   }
 
   getPercentage(questionIndex: number, answerIndex: number) {
-    const questionVotes = this.votes[questionIndex] || {};
+    const questionVotes = this.liveVotes()[questionIndex] || {};
     const total = Object.values(questionVotes).reduce((sum, value) => sum + value, 0);
 
     if (!total) {
@@ -277,7 +318,7 @@ export class SurveyDetail {
       return;
     }
 
-    this.votes = this.countVotes(data || []);
+    this.baseVotesSignal.set(this.countVotes(data || []));
   }
 
   private getSelectedVoteRows() {
@@ -285,7 +326,7 @@ export class SurveyDetail {
       return [];
     }
 
-    return Object.entries(this.selectedAnswers).flatMap(
+    return Object.entries(this.selectedAnswersSignal()).flatMap(
       ([questionIndex, answerIndexes]) =>
         answerIndexes.map(answerIndex => ({
           survey_id: this.survey!.id,

@@ -1,4 +1,4 @@
-<section class="create-modal">
+<section class="create-modal" [class.publish-success]="showPublishSuccess">
   <div class="modal-head">
     <div>
       <span class="badge">Draft</span>
@@ -12,10 +12,15 @@
     <div class="survey-details">
       <div class="field-grid">
         <label class="survey-name-field">
-          Survey name
+          Survey name <span class="required-mark">*</span>
           <div class="input-with-icon">
             <input type="text" [(ngModel)]="surveyTitle" />
-            <button class="ghost-icon" type="button" aria-label="Remove survey name">&#128465;</button>
+            <button
+              class="ghost-icon"
+              type="button"
+              aria-label="Remove survey name"
+              (click)="clearSurveyTitle()"
+            ></button>
           </div>
         </label>
 
@@ -23,23 +28,55 @@
           Describing text <span>(optional)</span>
           <div class="input-with-icon">
             <textarea [(ngModel)]="surveyDescription"></textarea>
-            <button class="ghost-icon" type="button" aria-label="Remove description">&#128465;</button>
+            <button
+              class="ghost-icon"
+              type="button"
+              aria-label="Remove description"
+              (click)="clearSurveyDescription()"
+            ></button>
           </div>
         </label>
 
         <label class="end-date-field">
-          Set end date <span>(optional)</span>
-          <div class="input-with-icon small-input">
-            <input type="date" [(ngModel)]="surveyEndDate" />
-            <span class="calendar-icon" aria-hidden="true">&#128197;</span>
+          Set end date <span></span>
+          <div class="date-row">
+            <div
+              class="input-with-icon small-input"
+              (click)="openDatePicker(endDateInput)"
+            >
+              <input
+                #endDateInput
+                type="datetime-local"
+                [(ngModel)]="surveyEndDate"
+                (focus)="openDatePicker(endDateInput)"
+                (keydown)="$event.preventDefault()"
+                (paste)="$event.preventDefault()"
+                step="60"
+              />
+              <button
+                class="calendar-trigger"
+                type="button"
+                aria-label="Open calendar"
+                (click)="openDatePicker(endDateInput); $event.stopPropagation()"
+              >
+                &#128197;
+              </button>
+            </div>
+            <button
+              class="ghost-icon"
+              type="button"
+              aria-label="Remove end date"
+              (click)="clearSurveyEndDate()"
+            ></button>
           </div>
         </label>
 
         <div class="category-field">
           <button class="category-btn" type="button" (click)="toggleCategoryMenu()">
-            {{ selectedCategory || 'Choose category' }}
+            Choose category
             <span class="caret">{{ isCategoryMenuOpen ? '▲' : '▼' }}</span>
           </button>
+          <span class="selected-category" *ngIf="selectedCategory">{{ selectedCategory }}</span>
 
           <div class="category-menu" *ngIf="isCategoryMenuOpen">
             <button
@@ -66,13 +103,18 @@
                 [(ngModel)]="firstQuestion.text"
                 placeholder="Which date would work best for you?"
               />
-              <button class="ghost-icon" type="button" aria-label="Remove question">&#128465;</button>
+              <button
+                class="ghost-icon"
+                type="button"
+                aria-label="Remove question"
+                (click)="clearQuestion(0)"
+              ></button>
             </div>
           </label>
         </div>
 
         <div class="answers-head">
-          <strong>Answers</strong>
+          <strong>Answers <span class="required-mark">*</span></strong>
 
           <label class="answers-toggle">
             <input type="checkbox" [(ngModel)]="firstQuestion.allowMultiple" />
@@ -87,7 +129,12 @@
           <span class="answer-label">{{ getAnswerLabel(answerIndex) }}</span>
           <div class="input-with-icon">
             <input type="text" [(ngModel)]="firstQuestion.answers[answerIndex]" />
-            <button class="ghost-icon" type="button" aria-label="Remove answer">&#128465;</button>
+            <button
+              class="ghost-icon"
+              type="button"
+              aria-label="Remove answer"
+              (click)="clearAnswer(0, answerIndex)"
+            ></button>
           </div>
         </label>
 
@@ -102,12 +149,6 @@
         </div>
       </section>
 
-      <div class="add-question-panel" *ngIf="additionalQuestions.length === 0">
-        <button class="add-question-btn" type="button" (click)="addNextQuestion()">
-          Add next question &#8853;
-        </button>
-      </div>
-
       <section
         class="question-card"
         *ngFor="let question of additionalQuestions; let extraIndex = index; trackBy: trackByIndex"
@@ -120,12 +161,17 @@
               [(ngModel)]="question.text"
               placeholder="Choose the activities you prefer?"
             />
-            <button class="ghost-icon" type="button" aria-label="Remove question">&#128465;</button>
+            <button
+              class="ghost-icon"
+              type="button"
+              aria-label="Remove question"
+              (click)="clearQuestion(extraIndex + 1)"
+            ></button>
           </div>
         </label>
 
         <div class="answers-head">
-          <strong>Answers</strong>
+          <strong>Answers <span class="required-mark">*</span></strong>
 
           <label class="answers-toggle">
             <input type="checkbox" [(ngModel)]="question.allowMultiple" />
@@ -140,7 +186,12 @@
           <span class="answer-label">{{ getAnswerLabel(answerIndex) }}</span>
           <div class="input-with-icon">
             <input type="text" [(ngModel)]="question.answers[answerIndex]" />
-            <button class="ghost-icon" type="button" aria-label="Remove answer">&#128465;</button>
+            <button
+              class="ghost-icon"
+              type="button"
+              aria-label="Remove answer"
+              (click)="clearAnswer(extraIndex + 1, answerIndex)"
+            ></button>
           </div>
         </label>
 
@@ -154,14 +205,33 @@
           </span>
         </div>
       </section>
+
+      <div class="add-question-panel full-width">
+        <button class="add-question-btn" type="button" (click)="addNextQuestion()">
+          Add next question &#8853;
+        </button>
+      </div>
     </div>
   </div>
 
-  <button class="publish-btn" type="button" (click)="publishSurvey()">
-    Publish
+  <button
+    class="publish-btn"
+    type="button"
+    [disabled]="isPublishing"
+    (click)="publishSurvey()"
+  >
+    <span>Publish</span>
+    <span class="publish-btn-check" *ngIf="canPublish" aria-hidden="true">✓</span>
   </button>
 
   <p class="publish-error" *ngIf="publishError">
     {{ publishError }}
   </p>
+
+  <div class="publish-success-overlay" *ngIf="showPublishSuccess"></div>
+
+  <aside class="publish-success-toast" *ngIf="showPublishSuccess">
+    <p>Your survey is now published</p>
+    <button type="button" aria-label="Close message" (click)="showPublishSuccess = false">&times;</button>
+  </aside>
 </section>

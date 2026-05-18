@@ -42,6 +42,8 @@ export class CreateSurvey {
   surveyDescription = '';
   surveyEndDate = '';
   publishError = '';
+  isPublishing = false;
+  showPublishSuccess = false;
 
   questions: QuestionBlock[] = [
     {
@@ -61,6 +63,10 @@ export class CreateSurvey {
     return this.questions.slice(1);
   }
 
+  get canPublish() {
+    return this.isFormValid();
+  }
+
   toggleCategoryMenu() {
     this.isCategoryMenuOpen = !this.isCategoryMenuOpen;
   }
@@ -68,6 +74,40 @@ export class CreateSurvey {
   selectCategory(category: string) {
     this.selectedCategory = category;
     this.isCategoryMenuOpen = false;
+  }
+
+  clearSurveyTitle() {
+    this.surveyTitle = '';
+  }
+
+  clearSurveyDescription() {
+    this.surveyDescription = '';
+  }
+
+  clearSurveyEndDate() {
+    this.surveyEndDate = '';
+  }
+
+  clearSelectedCategory() {
+    this.selectedCategory = '';
+    this.isCategoryMenuOpen = false;
+  }
+
+  openDatePicker(input: HTMLInputElement) {
+    try {
+      input.showPicker?.();
+    } catch {
+      input.focus();
+      input.click();
+    }
+  }
+
+  clearQuestion(questionIndex: number) {
+    this.questions[questionIndex].text = '';
+  }
+
+  clearAnswer(questionIndex: number, answerIndex: number) {
+    this.questions[questionIndex].answers[answerIndex] = '';
   }
 
   addAnswer(questionIndex: number) {
@@ -89,12 +129,19 @@ export class CreateSurvey {
   async publishSurvey() {
     this.publishError = '';
 
+    if (!this.isFormValid()) {
+      this.publishError = 'Please fill out all fields before publishing.';
+      return;
+    }
+
+    this.isPublishing = true;
+
     const survey: PublishedSurvey = {
       id: crypto.randomUUID(),
-      title: this.surveyTitle || 'Created survey',
-      description: this.surveyDescription,
+      title: this.surveyTitle.trim(),
+      description: this.surveyDescription.trim(),
       endDate: this.surveyEndDate,
-      category: this.selectedCategory || 'General',
+      category: this.selectedCategory,
       questions: this.normalizeQuestions(),
     };
 
@@ -140,13 +187,29 @@ export class CreateSurvey {
     if (error) {
       console.log('Survey publish error:', error);
       this.publishError = `Survey publish failed: ${error.message}`;
+      this.isPublishing = false;
       return;
     }
 
     const savedSurveyId = String(data?.id ?? survey.id);
     this.replaceLocalSurveyId(survey.id, savedSurveyId);
 
+    this.showPublishSuccess = true;
+    await this.delay(3000);
     await this.router.navigate(['/survey', savedSurveyId]);
+  }
+
+  private isFormValid() {
+    if (!this.surveyTitle.trim() || !this.surveyEndDate || !this.selectedCategory) {
+      return false;
+    }
+
+    return this.questions.every(
+      question =>
+        question.text.trim() &&
+        question.answers.length >= 2 &&
+        question.answers.every(answer => answer.trim())
+    );
   }
 
   private normalizeQuestions() {
@@ -173,6 +236,10 @@ export class CreateSurvey {
     if (updatedSurvey) {
       localStorage.setItem('publishedSurvey', JSON.stringify(updatedSurvey));
     }
+  }
+
+  private delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   trackByIndex(index: number) {

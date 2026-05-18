@@ -4,7 +4,7 @@
 
 <ng-container *ngIf="survey as survey">
   <header class="detail-header">
-    <div class="logo">▰ Poll<br />App</div>
+    <div class="logo">Poll<br />App</div>
 
     <a routerLink="/create" class="create-btn">Create survey</a>
   </header>
@@ -34,11 +34,8 @@
 
       <h1>{{ survey.title || 'Created survey' }}</h1>
 
-      <p class="description">
-        {{
-          survey.description ||
-          'We want to collect your opinion — choose your answers and complete the survey.'
-        }}
+      <p class="description" *ngIf="survey.description">
+        {{ survey.description }}
       </p>
 
       <div class="questions-grid">
@@ -68,9 +65,13 @@
         </section>
       </div>
 
-      <button class="complete-btn" type="button" (click)="completeSurvey()">
+      <button class="complete-btn" type="button" [disabled]="isSubmitting" (click)="completeSurvey()">
         Complete survey
       </button>
+
+      <p class="submit-message" *ngIf="submitMessage">
+        {{ submitMessage }}
+      </p>
     </section>
 
     <aside class="results-panel">

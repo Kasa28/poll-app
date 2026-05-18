@@ -13,16 +13,22 @@
         Collect opinions, engage your audience, and turn feedback into action.
       </p>
 
-      <a routerLink="/create" class="new-survey-btn">New survey</a>
+      <a routerLink="/create" class="new-survey-btn">
+        <span>New survey</span>
+        <span class="new-survey-btn-icon" aria-hidden="true">
+          <span class="new-survey-btn-icon-circle"></span>
+          <span class="new-survey-btn-icon-line horizontal"></span>
+          <span class="new-survey-btn-icon-line vertical"></span>
+        </span>
+      </a>
     </div>
 
     <div class="hero-visual" aria-hidden="true">
-  <img class="hero-visual-img hero-visual-default" src="/without_hover.svg" alt="" />
-  <img class="hero-visual-img hero-visual-hover" src="/hover.svg" alt="" />
-
-  <img class="hero-hover-dots" src="/hover-check.svg" alt="" />
-  <img class="hero-hover-check" src="/hover-dots.svg" alt="" />
-</div>
+      <img class="hero-visual-img hero-visual-default" src="/without_hover.svg" alt="" />
+      <img class="hero-visual-img hero-visual-hover" src="/hover.svg" alt="" />
+      <img class="hero-hover-dots" src="/hover-check.svg" alt="" />
+      <img class="hero-hover-check" src="/hover-dots.svg" alt="" />
+    </div>
   </section>
 
   <section class="survey-section">
@@ -50,8 +56,22 @@
 
     <section class="survey-toolbar">
       <div class="filter-pills">
-        <button type="button" class="pill active">Active survey</button>
-        <button type="button" class="pill">Past survey</button>
+        <button
+          type="button"
+          class="pill"
+          [class.active]="activeTab === 'active'"
+          (click)="setActiveTab('active')"
+        >
+          Active survey
+        </button>
+        <button
+          type="button"
+          class="pill"
+          [class.active]="activeTab === 'past'"
+          (click)="setActiveTab('past')"
+        >
+          Past survey
+        </button>
       </div>
 
       <div class="sort-menu" [class.open]="isCategoryMenuOpen">

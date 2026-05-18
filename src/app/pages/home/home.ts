@@ -10,6 +10,7 @@ type Survey = {
   endDate: string;
   endingLabel: string;
   sortValue: number;
+  isPast: boolean;
 };
 
 type SurveyRow = {
@@ -49,6 +50,7 @@ export class Home {
   loadNotice = '';
   isCategoryMenuOpen = false;
   selectedCategory = '';
+  activeTab: 'active' | 'past' = 'active';
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -97,6 +99,7 @@ export class Home {
       endDate,
       endingLabel: this.getEndingLabel(endDate),
       sortValue: this.getSortValue(endDate),
+      isPast: this.isPastSurvey(endDate),
     };
   }
 
@@ -144,12 +147,22 @@ export class Home {
     this.updateSurveyViews();
   }
 
-  private updateSurveyViews() {
-    this.filteredSurveys = this.selectedCategory
-      ? this.surveys.filter(survey => survey.category === this.selectedCategory)
-      : [...this.surveys];
+  setActiveTab(tab: 'active' | 'past') {
+    this.activeTab = tab;
+    this.updateSurveyViews();
+  }
 
-    this.endingSoonSurveys = [...this.filteredSurveys]
+  private updateSurveyViews() {
+    const tabFilteredSurveys = this.surveys.filter(survey =>
+      this.activeTab === 'past' ? survey.isPast : !survey.isPast
+    );
+
+    this.filteredSurveys = this.selectedCategory
+      ? tabFilteredSurveys.filter(survey => survey.category === this.selectedCategory)
+      : [...tabFilteredSurveys];
+
+    this.endingSoonSurveys = [...this.surveys]
+      .filter(survey => !survey.isPast)
       .sort((a, b) => a.sortValue - b.sortValue)
       .slice(0, 3);
   }
@@ -166,18 +179,19 @@ export class Home {
     }
 
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    parsedDate.setHours(0, 0, 0, 0);
+    const diffMs = parsedDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-    const diffDays = Math.ceil(
-      (parsedDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (diffDays < 0) {
+    if (diffMs < 0) {
       return 'Ended';
     }
 
-    if (diffDays === 0) {
+    const sameCalendarDay =
+      parsedDate.getFullYear() === now.getFullYear() &&
+      parsedDate.getMonth() === now.getMonth() &&
+      parsedDate.getDate() === now.getDate();
+
+    if (sameCalendarDay) {
       return 'Ends today';
     }
 
@@ -196,6 +210,20 @@ export class Home {
     }
 
     return parsedDate.getTime();
+  }
+
+  private isPastSurvey(endDate: string) {
+    if (!endDate) {
+      return false;
+    }
+
+    const parsedDate = new Date(endDate);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return false;
+    }
+
+    return parsedDate.getTime() < Date.now();
   }
 
   private withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {

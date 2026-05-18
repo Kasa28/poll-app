@@ -3,6 +3,7 @@
   min-height: 100vh;
   background: #2f2038;
   color: #fff7ec;
+  font-family: 'Mulish', sans-serif;
 }
 
 .home-page {
@@ -33,7 +34,8 @@
 .hero h1 {
   margin: 0 0 22px;
   color: #ffa142;
-  font-family: 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-family: 'Nerko One', cursive;
+  font-weight: 400;
   font-size: 68px;
   line-height: 1.03;
 }
@@ -50,20 +52,70 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0;
   padding: 12px 22px;
   border-radius: 14px;
   background: #ffc68d;
   color: #2f2038;
   text-decoration: none;
+  font-family: 'Mulish', sans-serif;
   font-weight: 700;
   font-size: 16px;
-  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease,
+    padding 180ms ease;
+}
+
+.new-survey-btn-icon {
+  position: relative;
+  width: 0;
+  height: 22px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: width 180ms ease, opacity 180ms ease, transform 180ms ease, margin-left 180ms ease;
+}
+
+.new-survey-btn-icon-circle {
+  position: absolute;
+  inset: 0;
+  border: 2.5px solid #2f2038;
+  border-radius: 999px;
+}
+
+.new-survey-btn-icon-line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 999px;
+  background: #2f2038;
+  transform: translate(-50%, -50%);
+}
+
+.new-survey-btn-icon-line.horizontal {
+  width: 10px;
+  height: 2.5px;
+}
+
+.new-survey-btn-icon-line.vertical {
+  width: 2.5px;
+  height: 10px;
 }
 
 .new-survey-btn:hover {
   transform: translateY(-2px);
+  padding-right: 18px;
   background: #ffd3a5;
   box-shadow: 0 14px 28px rgba(13, 7, 22, 0.22);
+}
+
+.new-survey-btn:hover .new-survey-btn-icon {
+  width: 22px;
+  margin-left: 8px;
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .hero-visual {
@@ -145,8 +197,10 @@
   margin: 0 0 24px;
   text-align: center;
   color: #ffb15d;
-  font-family: 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', sans-serif;
-  font-size: 28px;
+  font-family: 'Nerko One', cursive;
+  font-weight: 400;
+  font-size: 56px;
+  line-height: 1;
 }
 
 .load-notice {
@@ -158,8 +212,9 @@
 
 .ending-soon h3 {
   margin: 0 0 14px;
-  font-size: 28px;
-  font-weight: 500;
+  font-family: 'Mulish', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .ending-grid {
@@ -232,6 +287,7 @@
   border-radius: 999px;
   background: #d8c8c0;
   color: #39293f;
+  font-family: 'Mulish', sans-serif;
   font-size: 12px;
 }
 
@@ -251,6 +307,7 @@
   padding: 6px 10px;
   border-radius: 8px;
   background: #4b3952;
+  font-family: 'Mulish', sans-serif;
   font-size: 12px;
   text-align: left;
 }
@@ -274,6 +331,7 @@
   background: transparent;
   color: #39293f;
   cursor: pointer;
+  font-family: 'Mulish', sans-serif;
   font-size: 10px;
   text-align: left;
 }
@@ -360,6 +418,10 @@
     line-height: 1.42;
   }
 
+  .section-title {
+    font-size: 44px;
+  }
+
   .hero-visual {
     width: min(390px, 90vw);
     height: min(390px, 90vw);
@@ -402,5 +464,9 @@
   .ending-card:hover,
   .survey-row:hover {
     transform: none;
+  }
+
+  .new-survey-btn-icon {
+    transition: none;
   }
 }
