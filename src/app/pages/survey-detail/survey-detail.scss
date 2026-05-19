@@ -1,4 +1,4 @@
-@use 'survey-detail.results';
+@use 'survey-detail.results' as surveyDetailResults;
 
 :host {
   min-height: 100vh;
@@ -130,6 +130,7 @@
 }
 
 .survey-sheet {
+  position: relative;
   padding: 34px 34px 30px;
   background: #f3edf5;
   border-radius: 0 104px 0 0;
@@ -264,4 +265,14 @@
     font-size: 14px;
     font-weight: 700;
   }
+
+  .mobile-close-btn {
+    display: none;
+  }
 }
+
+.results-toggle {
+  display: none;
+}
+
+@include surveyDetailResults.responsive;

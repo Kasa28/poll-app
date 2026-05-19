@@ -20,6 +20,10 @@
 
   <main class="detail-page">
     <section class="survey-sheet">
+      <a routerLink="/" class="mobile-close-btn" aria-label="Close survey detail">
+        &times;
+      </a>
+
       <p class="source-notice" *ngIf="sourceNotice">
         {{ sourceNotice }}
       </p>
@@ -74,7 +78,8 @@
       </p>
 
       <button class="complete-btn" type="button" [disabled]="isSubmitting || isPastSurvey" (click)="completeSurvey()">
-        Complete survey
+        <span>Complete</span>
+        <span aria-hidden="true">&#10003;</span>
       </button>
 
       <p class="submit-message" *ngIf="submitMessage && !isPastSurvey">
@@ -82,47 +87,54 @@
       </p>
     </section>
 
-    <aside class="results-panel">
-      <h2>
-        Survey results <span>LIVE</span>
-      </h2>
+    <aside class="results-panel" [class.mobile-collapsed]="!isMobileResultsOpen">
+      <button class="results-toggle" type="button" (click)="toggleMobileResults()">
+        {{ isMobileResultsOpen ? 'Close results' : 'Open results' }}
+        <span aria-hidden="true">{{ isMobileResultsOpen ? '▲' : '▼' }}</span>
+      </button>
 
-      <ng-container *ngIf="hasLiveResults(); else emptyResults">
-        <section
-          class="result-question"
-          *ngFor="let question of survey.questions || []; let questionIndex = index"
-        >
-          <h3>{{ questionIndex + 1 }}. {{ question.text }}</h3>
+      <div class="results-body" *ngIf="isMobileResultsOpen">
+        <h2>
+          Survey results <span>LIVE</span>
+        </h2>
 
-          <div
-            class="result-row"
-            *ngFor="let answer of question.answers; let answerIndex = index"
+        <ng-container *ngIf="hasLiveResults(); else emptyResults">
+          <section
+            class="result-question"
+            *ngFor="let question of survey.questions || []; let questionIndex = index"
           >
-            <span class="result-letter">{{ getAnswerLetter(answerIndex) }}</span>
+            <h3>{{ questionIndex + 1 }}. {{ question.text }}</h3>
 
-            <div class="result-track">
-              <div
-                class="result-fill"
-                [style.width.%]="getPercentage(questionIndex, answerIndex)"
-              ></div>
+            <div
+              class="result-row"
+              *ngFor="let answer of question.answers; let answerIndex = index"
+            >
+              <span class="result-letter">{{ getAnswerLetter(answerIndex) }}</span>
+
+              <div class="result-track">
+                <div
+                  class="result-fill"
+                  [style.width.%]="getPercentage(questionIndex, answerIndex)"
+                ></div>
+              </div>
+
+              <strong class="result-value">
+                {{ getPercentage(questionIndex, answerIndex) }}%
+              </strong>
             </div>
+          </section>
+        </ng-container>
 
-            <strong class="result-value">
-              {{ getPercentage(questionIndex, answerIndex) }}%
-            </strong>
-          </div>
-        </section>
-      </ng-container>
+        <ng-template #emptyResults>
+          <section class="results-empty">
+            <p class="results-copy">
+              Results will be shown here after participants complete the survey.
+            </p>
 
-      <ng-template #emptyResults>
-        <section class="results-empty">
-          <p class="results-copy">
-            Results will be shown here after participants complete the survey.
-          </p>
-
-          <p class="results-placeholder">There are no answers yet.</p>
-        </section>
-      </ng-template>
+            <p class="results-placeholder">There are no answers yet.</p>
+          </section>
+        </ng-template>
+      </div>
     </aside>
   </main>
 </ng-container>

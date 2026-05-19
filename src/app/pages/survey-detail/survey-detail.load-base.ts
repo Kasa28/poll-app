@@ -22,6 +22,7 @@ import { QuestionBlock, Survey, SurveyRow, VoteRow } from './survey-detail.types
 export class SurveyDetailLoadBase {
   survey?: Survey;
   isLoading = true;
+  isMobileResultsOpen = true;
   errorMessage = '';
   errorDetails = '';
   dataSource: 'database' | 'local' | '' = '';
@@ -105,6 +106,13 @@ export class SurveyDetailLoadBase {
    */
   protected navigateHome() {
     return this.router.navigate(['/']);
+  }
+
+  /**
+   * Opens or closes the mobile results section.
+   */
+  toggleMobileResults() {
+    this.isMobileResultsOpen = !this.isMobileResultsOpen;
   }
 
   /**

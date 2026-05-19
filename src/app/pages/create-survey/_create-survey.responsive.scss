@@ -1,0 +1,60 @@
+@mixin responsive {
+  @media (max-width: 980px) {
+    :host {
+      padding: 16px 0;
+    }
+
+    .create-modal {
+      width: 100%;
+      min-height: auto;
+      padding: 12px 16px 22px;
+      border-radius: 0 42px 0 0;
+
+      .modal-head { align-items: flex-start; }
+      h2 { max-width: 210px; margin: 8px 0 12px; font-size: 33px; line-height: 0.92; }
+
+      .cancel-btn { width: 36px; height: 36px; padding: 0; border-radius: 11px }
+      .cancel-btn span:first-child { display: none }
+      .cancel-btn-close { font-size: 20px; line-height: 1; transform: translateY(-1px) }
+
+      .publish-btn,
+      .add-question-btn {
+        min-height: 40px;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        gap: 8px;
+      }
+
+      .publish-btn-check,
+      .add-question-btn-icon {
+        font-size: 14px;
+      }
+
+      .form-panel {
+        min-height: auto;
+        padding: 18px 14px 20px;
+        border-radius: 0 34px 0 0;
+
+        .field-grid, .questions-layout, .questions-layout.has-extra-questions { grid-template-columns: 1fr; row-gap: 16px; }
+        .left-fields { gap: 16px; }
+        .end-date-row { flex-direction: column; gap: 16px; }
+        .survey-name-field, .end-date-field, .description-field, .category-field { padding-top: 0; }
+        .small-input input {
+          max-width: none;
+        }
+
+        .date-row { display: grid; grid-template-columns: minmax(0,1fr) 88px 16px; gap: 8px; align-items: center; }
+        .desktop-datetime { display: none; }
+        .mobile-date-input, .mobile-time-input { display: flex; }
+        .mobile-date-input input, .mobile-time-input input { height: 34px; padding: 6px 10px; font-size: 14px; }
+        .add-question-panel { justify-content: center; padding-top: 12px; }
+        .selected-category { margin-top: 4px; font-size: 16px; }
+        .answers-head { flex-direction: row; align-items: center; justify-content: space-between }
+        .question-actions { gap: 8px; padding-left: 0 }
+        .category-btn, label, .answer-label, .answers-head strong { font-size: 16px }
+        .answers-head label, .answer-hint { font-size: 11px }
+      }
+    }
+  }
+}
