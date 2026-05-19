@@ -80,7 +80,6 @@
 }
 
 .new-survey-btn-icon {
-  position: relative;
   width: 0;
   height: 22px;
   overflow: hidden;
@@ -89,30 +88,10 @@
   transition: width 180ms ease, opacity 180ms ease, transform 180ms ease, margin-left 180ms ease;
 }
 
-.new-survey-btn-icon-circle {
-  position: absolute;
-  inset: 0;
-  border: 2.5px solid #2f2038;
-  border-radius: 999px;
-}
-
-.new-survey-btn-icon-line {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  border-radius: 999px;
-  background: #2f2038;
-  transform: translate(-50%, -50%);
-}
-
-.new-survey-btn-icon-line.horizontal {
-  width: 10px;
-  height: 2.5px;
-}
-
-.new-survey-btn-icon-line.vertical {
-  width: 2.5px;
-  height: 10px;
+.new-survey-btn-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .new-survey-btn:hover {

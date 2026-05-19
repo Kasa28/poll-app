@@ -162,20 +162,6 @@
       transform: none;
     }
 
-    .new-survey-btn-icon-circle {
-      border-width: 2px;
-    }
-
-    .new-survey-btn-icon-line.horizontal {
-      width: 8px;
-      height: 2px;
-    }
-
-    .new-survey-btn-icon-line.vertical {
-      width: 2px;
-      height: 8px;
-    }
-
     .section-title {
       margin-bottom: 26px;
       font-size: 40px;
@@ -294,6 +280,56 @@
       right: 10%;
       bottom: 23%;
       width: 22%;
+    }
+
+    .hero-visual-img,
+    .hero-hover-dots,
+    .hero-hover-check,
+    .new-survey-btn,
+    .new-survey-btn-icon,
+    .ending-card,
+    .survey-row {
+      transition: none;
+    }
+
+    .hero-visual:hover .hero-visual-hover,
+    .hero-visual:hover .hero-hover-dots,
+    .hero-visual:hover .hero-hover-check,
+    .new-survey-btn:hover,
+    .ending-card:hover,
+    .survey-row:hover {
+      transform: none;
+    }
+
+    .hero-visual:hover .hero-visual-default {
+      opacity: 1;
+    }
+
+    .hero-visual:hover .hero-visual-hover,
+    .hero-visual:hover .hero-hover-dots,
+    .hero-visual:hover .hero-hover-check {
+      opacity: 0;
+    }
+
+    .new-survey-btn:hover {
+      padding: 8px 16px;
+      background: #ffc68d;
+      box-shadow: none;
+    }
+
+    .new-survey-btn:hover .new-survey-btn-icon {
+      width: 16px;
+      margin-left: 0;
+      opacity: 1;
+      transform: none;
+    }
+
+    .ending-card:hover {
+      box-shadow: none;
+    }
+
+    .survey-row:hover {
+      background: #4b3952;
     }
   }
 

@@ -24,3 +24,12 @@ textarea,
 select {
   font: inherit;
 }
+
+@media (max-width: 750px), (hover: none), (pointer: coarse) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

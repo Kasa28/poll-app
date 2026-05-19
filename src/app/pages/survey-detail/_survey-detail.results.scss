@@ -213,6 +213,16 @@
         margin-bottom: 0;
       }
     }
+
+    .results-toggle,
+    .detail-header .create-btn,
+    .detail-header .create-btn-icon {
+      transition: none;
+    }
+
+    .detail-header .create-btn:hover {
+      transform: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
