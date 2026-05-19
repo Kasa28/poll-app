@@ -56,7 +56,6 @@ export class Home {
     'Lifestyle & Preferences',
     'Technology & Innovation',
   ];
-
   surveys: Survey[] = [];
   filteredSurveys: Survey[] = [];
   endingSoonSurveys: Survey[] = [];
@@ -90,7 +89,6 @@ export class Home {
    */
   private mapSurvey(survey: SurveyRow | LocalSurvey): Survey {
     const endDate = 'end_date' in survey ? survey.end_date || '' : survey.endDate || '';
-
     return {
       id: String(survey.id),
       category: survey.category || 'General',
@@ -112,10 +110,8 @@ export class Home {
    */
   private mergeSurveys(dbSurveys: Survey[], localSurveys: Survey[]) {
     const merged = new Map<string, Survey>();
-
     localSurveys.forEach(survey => merged.set(survey.id, survey));
     dbSurveys.forEach(survey => merged.set(survey.id, survey));
-
     return Array.from(merged.values()).sort((a, b) => b.sortValue - a.sortValue);
   }
 
@@ -126,7 +122,6 @@ export class Home {
    */
   private getLocalSurveys() {
     const localSurveys: LocalSurvey[] = JSON.parse(localStorage.getItem('publishedSurveys') || '[]');
-
     return localSurveys.map(survey => this.mapSurvey(survey));
   }
 
@@ -186,11 +181,9 @@ export class Home {
     const tabFilteredSurveys = this.surveys.filter(survey =>
       this.activeTab === 'past' ? survey.isPast : !survey.isPast
     );
-
     this.filteredSurveys = this.selectedCategory
       ? tabFilteredSurveys.filter(survey => survey.category === this.selectedCategory)
       : [...tabFilteredSurveys];
-
     this.endingSoonSurveys = [...this.surveys]
       .filter(survey => !survey.isPast)
       .sort((a, b) => a.sortValue - b.sortValue)
@@ -205,9 +198,7 @@ export class Home {
    */
   private getEndingLabel(endDate: string) {
     const parsedDate = new Date(endDate);
-
     if (!endDate) return 'No end date';
-
     return this.isInvalidDate(parsedDate)
       ? `Ends on ${endDate}`
       : this.getRelativeEndingLabel(parsedDate);
@@ -221,9 +212,7 @@ export class Home {
    */
   private getSortValue(endDate: string) {
     const parsedDate = new Date(endDate);
-
     if (this.isInvalidDate(parsedDate)) return Number.MAX_SAFE_INTEGER;
-
     return parsedDate.getTime();
   }
 
@@ -235,11 +224,8 @@ export class Home {
    */
   private isPastSurvey(endDate: string) {
     if (!endDate) return false;
-
     const parsedDate = new Date(endDate);
-
     if (this.isInvalidDate(parsedDate)) return false;
-
     return parsedDate.getTime() < Date.now();
   }
 
@@ -293,7 +279,6 @@ export class Home {
    */
   private applyDatabaseSurveys(rows: SurveyRow[], localSurveys: Survey[]) {
     const dbSurveys = rows.map(survey => this.mapSurvey(survey));
-
     this.surveys = this.mergeSurveys(dbSurveys, localSurveys);
     this.loadNotice = '';
     this.updateSurveyViews();
@@ -307,11 +292,9 @@ export class Home {
    */
   private handleLoadException(localSurveys: Survey[], error: unknown) {
     console.log('Home survey load exception:', error);
-
     const message = error instanceof Error
       ? error.message
       : 'Survey list could not be loaded.';
-
     this.loadFromLocal(localSurveys, message);
   }
 
@@ -323,9 +306,7 @@ export class Home {
    */
   private async loadInitialSurveys(localSurveys: Survey[]) {
     const result = await this.fetchSurveys();
-
     if (result.error) return this.handleLoadError(localSurveys, result.error);
-
     this.applyDatabaseSurveys(result.data || [], localSurveys);
   }
 
@@ -341,7 +322,6 @@ export class Home {
     } catch (error) {
       this.handleLoadException(localSurveys, error);
     }
-
     this.refreshView();
   }
 
@@ -362,10 +342,8 @@ export class Home {
     const now = new Date();
     const diffMs = parsedDate.getTime() - now.getTime();
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
     if (diffMs < 0) return 'Ended';
     if (this.isSameCalendarDay(parsedDate, now)) return 'Ends today';
-
     return diffDays === 1 ? 'Ends in 1 Day' : `Ends in ${diffDays} Days`;
   }
 
