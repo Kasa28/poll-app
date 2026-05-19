@@ -1,59 +1,46 @@
 # PollApp
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.10.
+PollApp is an Angular survey application for creating polls, publishing them, collecting answers, and viewing live results. Surveys are stored in Supabase, and the app also keeps a local fallback in `localStorage` so the UI can still show recently created surveys if the database request fails.
 
-## Development server
+## How To Use
 
-To start a local development server, run:
+1. Open the home page to browse active and past surveys.
+2. Click `New survey` or `Create survey` to open the survey builder.
+3. Enter a title, end date, category, and at least one question with answers.
+4. Click `Publish` to save the survey.
+5. Open a survey detail page to answer the questions and view the result bars.
+
+## Start The App
+
+Run the development server with:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Then open `http://localhost:4200/` in the browser.
 
-## Code scaffolding
+## Build
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+Create a production build with:
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The compiled output is written to `dist/`.
 
-## Running unit tests
+## Tests
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Run unit tests with:
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
+## Project Structure
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- `src/app/pages/home`: survey overview, filters, and ending-soon cards
+- `src/app/pages/create-survey`: survey builder and publish flow
+- `src/app/pages/survey-detail`: survey answering and live results
+- `src/app/supabase.ts`: Supabase client setup
