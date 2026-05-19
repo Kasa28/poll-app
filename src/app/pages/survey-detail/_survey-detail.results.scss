@@ -1,0 +1,160 @@
+.results-panel {
+  padding-top: 98px;
+  min-height: 520px;
+
+  h2 {
+    margin: 0 0 22px;
+    color: #2f2038;
+    font-family: 'Nerko One', cursive;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1;
+
+    span {
+      color: #ffad70;
+    }
+  }
+
+  .results-empty {
+    display: flex;
+    min-height: 380px;
+    flex-direction: column;
+  }
+
+  .results-copy {
+    max-width: 230px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(47, 32, 56, 0.8);
+  }
+
+  .results-placeholder {
+    margin: auto 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(47, 32, 56, 0.72);
+  }
+
+  .result-question {
+    margin-bottom: 22px;
+
+    h3 {
+      margin: 0 0 10px;
+      color: #3c2f48;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.22;
+    }
+  }
+
+  .result-row {
+    display: grid;
+    grid-template-columns: 12px 1fr 34px;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 7px;
+    font-size: 12px;
+  }
+
+  .result-track {
+    height: 10px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #ececec;
+  }
+
+  .result-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: #ffb464;
+  }
+
+  .result-letter {
+    color: #65596f;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .result-value {
+    color: #f7932f;
+    font-size: 11px;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 900px) {
+  .detail-header,
+  .detail-page {
+    width: min(100%, calc(100vw - 28px));
+  }
+
+  .detail-header {
+    padding: 20px 0 22px;
+
+    .logo {
+      width: 88px;
+    }
+
+    .create-btn {
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+  }
+
+  .detail-page {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .survey-sheet {
+    border-radius: 0 46px 0 0;
+    padding: 20px 18px 22px;
+
+    .survey-meta,
+    .questions-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .survey-meta {
+      display: grid;
+      gap: 8px;
+    }
+
+    h1 {
+      max-width: none;
+      font-size: 34px;
+      line-height: 0.95;
+    }
+
+    .description {
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+
+    .answer-option span {
+      max-width: none;
+    }
+  }
+
+  .results-panel {
+    padding-top: 0;
+    min-height: 0;
+
+    h2 {
+      font-size: 28px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-header .create-btn,
+  .detail-header .create-btn-icon {
+    transition: none;
+  }
+
+  .detail-header .create-btn:hover {
+    transform: none;
+  }
+}
