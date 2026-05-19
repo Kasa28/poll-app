@@ -14,6 +14,7 @@ import { PublishedSurvey, QuestionBlock } from './create-survey.types';
 
 @Directive()
 export class CreateSurveyPublishBase {
+  private readonly publishSuccessDelayMs = 2000;
   categories = [
     'Team Activities',
     'Health & Wellness',
@@ -258,6 +259,7 @@ export class CreateSurveyPublishBase {
     this.showPublishSuccess = true;
     this.isPublishing = false;
     this.syncView();
+    window.setTimeout(() => void this.closePublishSuccess(), this.publishSuccessDelayMs);
   }
 
   /**

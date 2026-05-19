@@ -24,6 +24,24 @@ export class SurveyDetailBase extends SurveyDetailDataBase {
   }
 
   /**
+   * Exposes the short re-vote cooldown state for the template.
+   *
+   * @returns True while the survey is temporarily blocked after a vote.
+   */
+  get isVoteBlocked() {
+    return this.isVoteCooldownActive;
+  }
+
+  /**
+   * Exposes the current re-vote cooldown message for the template.
+   *
+   * @returns Cooldown message or an empty string.
+   */
+  get voteCooldownMessage() {
+    return this.getVoteCooldownMessage();
+  }
+
+  /**
    * Converts an answer index into a visible label.
    *
    * @param answerIndex Index of the answer.

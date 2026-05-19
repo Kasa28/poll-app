@@ -20,6 +20,7 @@ import { QuestionBlock, Survey, SurveyRow, VoteRow } from './survey-detail.types
  */
 @Directive()
 export class SurveyDetailLoadBase {
+  private readonly voteCooldownMs = 3000;
   survey?: Survey;
   isLoading = true;
   isMobileResultsOpen = true;
@@ -28,6 +29,7 @@ export class SurveyDetailLoadBase {
   dataSource: 'database' | 'local' | '' = '';
   sourceNotice = '';
   private loadingTimeoutId?: number;
+  private voteCooldownTimeoutId?: number;
   protected selectedAnswersSignal = signal<Record<number, number[]>>({});
   protected baseVotesSignal = signal<Record<number, Record<number, number>>>({});
   protected isSubmittingSignal = signal(false);
@@ -57,6 +59,17 @@ export class SurveyDetailLoadBase {
   }
 
   /**
+   * Checks whether a short re-vote cooldown is still active for the current survey.
+   *
+   * @returns True while the cooldown timestamp is still in the future.
+   */
+  get isVoteCooldownActive() {
+    if (!this.survey) return false;
+    const cooldownUntil = this.getVoteCooldownUntil(this.survey.id);
+    return cooldownUntil > Date.now();
+  }
+
+  /**
    * Loads the survey data and its stored votes.
    *
    * @returns A promise that resolves when the initial loading flow is finished.
@@ -65,6 +78,7 @@ export class SurveyDetailLoadBase {
     this.startLoadingWatchdog();
     try {
       await this.loadSurvey();
+      this.syncVoteCooldownState();
       await this.loadVotes();
     } catch (error) {
       this.handleInitError(error);
@@ -109,6 +123,26 @@ export class SurveyDetailLoadBase {
   }
 
   /**
+   * Starts a short client-side cooldown that blocks immediate re-votes.
+   *
+   * @param surveyId Current survey id.
+   */
+  protected startVoteCooldown(surveyId: string) {
+    localStorage.setItem(this.getVoteCooldownKey(surveyId), String(Date.now() + this.voteCooldownMs));
+    this.syncVoteCooldownState();
+  }
+
+  /**
+   * Returns the current re-vote cooldown message.
+   *
+   * @returns A user-facing cooldown hint or an empty string.
+   */
+  protected getVoteCooldownMessage() {
+    if (!this.isVoteCooldownActive) return '';
+    return 'Please wait 3 seconds before voting in this survey again.';
+  }
+
+  /**
    * Opens or closes the mobile results section.
    */
   toggleMobileResults() {
@@ -139,6 +173,25 @@ export class SurveyDetailLoadBase {
       clearTimeout(this.loadingTimeoutId);
       this.loadingTimeoutId = undefined;
     }
+  }
+
+  /**
+   * Schedules a UI refresh when the short re-vote cooldown ends.
+   */
+  private syncVoteCooldownState() {
+    if (this.voteCooldownTimeoutId) {
+      clearTimeout(this.voteCooldownTimeoutId);
+      this.voteCooldownTimeoutId = undefined;
+    }
+
+    if (!this.survey || !this.isVoteCooldownActive) return;
+    const remainingMs = this.getVoteCooldownUntil(this.survey.id) - Date.now();
+    if (remainingMs <= 0) return;
+
+    this.voteCooldownTimeoutId = window.setTimeout(() => {
+      this.voteCooldownTimeoutId = undefined;
+      this.cdr.detectChanges();
+    }, remainingMs);
   }
 
   /**
@@ -322,5 +375,26 @@ export class SurveyDetailLoadBase {
   private handleVoteLoadError(error: { message: string }) {
     this.errorDetails = error.message;
     console.log('Vote load error:', error);
+  }
+
+  /**
+   * Builds the localStorage key used for the short re-vote cooldown.
+   *
+   * @param surveyId Current survey id.
+   * @returns Namespaced localStorage key.
+   */
+  private getVoteCooldownKey(surveyId: string) {
+    return `pollapp-vote-cooldown-${surveyId}`;
+  }
+
+  /**
+   * Reads the stored cooldown timestamp for one survey.
+   *
+   * @param surveyId Current survey id.
+   * @returns Cooldown end timestamp in milliseconds.
+   */
+  private getVoteCooldownUntil(surveyId: string) {
+    const value = localStorage.getItem(this.getVoteCooldownKey(surveyId));
+    return Number(value || 0);
   }
 }
