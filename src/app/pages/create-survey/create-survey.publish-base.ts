@@ -292,7 +292,7 @@ export class CreateSurveyPublishBase {
    * @returns True if the viewport width is mobile-sized.
    */
   private isMobileView() {
-    return window.innerWidth <= 640;
+    return window.matchMedia('(max-width: 640px) and (pointer: coarse)').matches;
   }
 
   /**

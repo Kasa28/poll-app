@@ -70,6 +70,16 @@ export class SurveyDetailLoadBase {
   }
 
   /**
+   * Checks whether this survey was already completed on the current device.
+   *
+   * @returns True if the user has already submitted a vote for this survey.
+   */
+  get hasAlreadyVoted() {
+    if (!this.survey) return false;
+    return localStorage.getItem(this.getVotedSurveyKey(this.survey.id)) === 'true';
+  }
+
+  /**
    * Loads the survey data and its stored votes.
    *
    * @returns A promise that resolves when the initial loading flow is finished.
@@ -133,6 +143,15 @@ export class SurveyDetailLoadBase {
   }
 
   /**
+   * Stores that the current device has already voted in this survey.
+   *
+   * @param surveyId Current survey id.
+   */
+  protected markSurveyAsVoted(surveyId: string) {
+    localStorage.setItem(this.getVotedSurveyKey(surveyId), 'true');
+  }
+
+  /**
    * Returns the current re-vote cooldown message.
    *
    * @returns A user-facing cooldown hint or an empty string.
@@ -140,6 +159,16 @@ export class SurveyDetailLoadBase {
   protected getVoteCooldownMessage() {
     if (!this.isVoteCooldownActive) return '';
     return 'Please wait 3 seconds before voting in this survey again.';
+  }
+
+  /**
+   * Returns the message shown when the survey was already completed before.
+   *
+   * @returns A user-facing one-vote-only message or an empty string.
+   */
+  protected getAlreadyVotedMessage() {
+    if (!this.hasAlreadyVoted) return '';
+    return 'You have already voted.';
   }
 
   /**
@@ -385,6 +414,16 @@ export class SurveyDetailLoadBase {
    */
   private getVoteCooldownKey(surveyId: string) {
     return `pollapp-vote-cooldown-${surveyId}`;
+  }
+
+  /**
+   * Builds the localStorage key used to remember a completed survey vote.
+   *
+   * @param surveyId Current survey id.
+   * @returns Namespaced localStorage key.
+   */
+  private getVotedSurveyKey(surveyId: string) {
+    return `pollapp-voted-survey-${surveyId}`;
   }
 
   /**

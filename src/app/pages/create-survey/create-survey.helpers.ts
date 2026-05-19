@@ -32,6 +32,7 @@ export function getSelectionHint(question: QuestionBlock) {
 export function buildQuestion(questionIndex: number): QuestionBlock {
   return {
     text: getQuestionPlaceholder(questionIndex),
+    suppressPlaceholder: false,
     allowMultiple: false,
     answers: ['', ''],
   };

@@ -129,7 +129,20 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    * @param questionIndex Index of the question to clear.
    */
   clearQuestion(questionIndex: number) {
-    this.questions[questionIndex].text = '';
+    const question = this.questions[questionIndex];
+    if (!question) return;
+
+    const isQuestionEmpty = !question.text.trim() && question.answers.every(answer => !answer.trim());
+    if (isQuestionEmpty && this.questions.length > 1) {
+      this.questions.splice(questionIndex, 1);
+      this.handleFormChange();
+      return;
+    }
+
+    question.text = '';
+    question.suppressPlaceholder = true;
+    question.allowMultiple = false;
+    question.answers = question.answers.map(() => '');
     this.handleFormChange();
   }
 
@@ -140,7 +153,17 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    * @param answerIndex Index of the answer.
    */
   clearAnswer(questionIndex: number, answerIndex: number) {
-    this.questions[questionIndex].answers[answerIndex] = '';
+    const question = this.questions[questionIndex];
+    const answer = question?.answers[answerIndex];
+    if (!question || answer === undefined) return;
+
+    if (!answer.trim()) {
+      question.answers.splice(answerIndex, 1);
+      this.handleFormChange();
+      return;
+    }
+
+    question.answers[answerIndex] = '';
     this.handleFormChange();
   }
 
@@ -169,7 +192,25 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    * @returns Placeholder text for the question.
    */
   getQuestionPlaceholder(questionIndex: number) {
+    const question = this.questions[questionIndex];
+    if (question?.suppressPlaceholder) return '';
     return getQuestionPlaceholder(questionIndex);
+  }
+
+  /**
+   * Updates one question text and restores the placeholder behavior after manual input.
+   *
+   * @param questionIndex Index of the edited question.
+   * @param value Current input value.
+   */
+  handleQuestionTextChange(questionIndex: number, value: string) {
+    const question = this.questions[questionIndex];
+    if (!question) return;
+    question.text = value;
+    if (value.trim()) {
+      question.suppressPlaceholder = false;
+    }
+    this.handleFormChange();
   }
 
   /**

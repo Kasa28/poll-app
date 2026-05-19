@@ -17,7 +17,7 @@ export class SurveyDetailDataBase extends SurveyDetailLoadBase {
    * @returns A promise that resolves when the submit flow is finished.
    */
   async completeSurvey() {
-    if (!this.survey || this.isPastSurvey || this.isVoteCooldownActive) return;
+    if (!this.survey || this.isPastSurvey || this.isVoteCooldownActive || this.hasAlreadyVoted) return;
     this.submitMessageSignal.set('');
     const voteRows = this.getSelectedVoteRows();
     if (!voteRows.length) return this.navigateHome();
@@ -34,7 +34,7 @@ export class SurveyDetailDataBase extends SurveyDetailLoadBase {
    * @param answerIndex Index of the selected answer.
    */
   selectAnswer(questionIndex: number, answerIndex: number) {
-    if (!this.survey || this.isPastSurvey || this.isVoteCooldownActive) return;
+    if (!this.survey || this.isPastSurvey || this.isVoteCooldownActive || this.hasAlreadyVoted) return;
     const selectedAnswers = this.selectedAnswersSignal();
     const selected = selectedAnswers[questionIndex] || [];
     const question = this.survey.questions[questionIndex];
@@ -106,6 +106,7 @@ export class SurveyDetailDataBase extends SurveyDetailLoadBase {
    */
   private async finishSurveySubmission() {
     if (!this.survey) return;
+    this.markSurveyAsVoted(this.survey.id);
     this.startVoteCooldown(this.survey.id);
     this.baseVotesSignal.set(this.liveVotes());
     this.selectedAnswersSignal.set({});

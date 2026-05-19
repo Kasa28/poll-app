@@ -8,6 +8,11 @@ export type QuestionBlock = {
   text: string;
 
   /**
+   * Hides the default starter placeholder after the trash action cleared the field.
+   */
+  suppressPlaceholder?: boolean;
+
+  /**
    * Defines whether the user can select multiple answers.
    */
   allowMultiple: boolean;

@@ -60,7 +60,7 @@
           <label class="answer-option" *ngFor="let answer of question.answers; let answerIndex = index">
             <input
               type="checkbox"
-              [disabled]="isPastSurvey || isVoteBlocked"
+              [disabled]="isPastSurvey || isVoteBlocked || hasVotedAlready"
               [checked]="isSelected(questionIndex, answerIndex)"
               (change)="selectAnswer(questionIndex, answerIndex)"
             />
@@ -77,6 +77,10 @@
         This survey has ended. You can only view the results.
       </p>
 
+      <p class="submit-message" *ngIf="alreadyVotedMessage && !isPastSurvey">
+        {{ alreadyVotedMessage }}
+      </p>
+
       <p class="submit-message" *ngIf="voteCooldownMessage && !isPastSurvey">
         {{ voteCooldownMessage }}
       </p>
@@ -84,7 +88,7 @@
       <button
         class="complete-btn"
         type="button"
-        [disabled]="isSubmitting || isPastSurvey || isVoteBlocked"
+        [disabled]="isSubmitting || isPastSurvey || isVoteBlocked || hasVotedAlready"
         (click)="completeSurvey()"
       >
         <span>Complete</span>

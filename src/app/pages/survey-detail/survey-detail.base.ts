@@ -42,6 +42,24 @@ export class SurveyDetailBase extends SurveyDetailDataBase {
   }
 
   /**
+   * Exposes the permanent single-vote restriction state for the template.
+   *
+   * @returns True if this device already voted in the survey.
+   */
+  get hasVotedAlready() {
+    return this.hasAlreadyVoted;
+  }
+
+  /**
+   * Exposes the one-vote-only message for the template.
+   *
+   * @returns User-facing message or an empty string.
+   */
+  get alreadyVotedMessage() {
+    return this.getAlreadyVotedMessage();
+  }
+
+  /**
    * Converts an answer index into a visible label.
    *
    * @param answerIndex Index of the answer.

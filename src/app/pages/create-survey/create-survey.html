@@ -30,7 +30,7 @@
 
           <div class="end-date-row">
             <label class="end-date-field">
-              Set end date <span></span>
+              Set end date <span class="required-mark">*</span>
               <div class="date-row">
                 <div
                   class="input-with-icon small-input desktop-datetime"
@@ -84,7 +84,7 @@
 
             <div class="category-field">
               <button class="category-btn" type="button" (click)="toggleCategoryMenu()">
-                Choose category
+                Choose category <span class="required-mark">*</span>
                 <span class="caret">{{ isCategoryMenuOpen ? '▲' : '▼' }}</span>
               </button>
               <span class="selected-category" *ngIf="selectedCategory">{{ selectedCategory }}</span>
@@ -124,12 +124,12 @@
         *ngFor="let question of questions; let questionIndex = index; trackBy: trackByIndex"
       >
         <label class="question-label">
-          {{ questionIndex + 1 }}. Question
+          {{ questionIndex + 1 }}. Question <span class="required-mark">*</span>
           <div class="input-with-icon">
             <input
               type="text"
               [(ngModel)]="question.text"
-              (ngModelChange)="handleFormChange()"
+              (ngModelChange)="handleQuestionTextChange(questionIndex, $event)"
               [placeholder]="getQuestionPlaceholder(questionIndex)"
             />
             <button
@@ -142,7 +142,7 @@
         </label>
 
         <div class="answers-head">
-          <strong>Answers</strong>
+          <strong>Answers <span class="required-mark">*</span></strong>
 
           <label class="answers-toggle">
             <input type="checkbox" [(ngModel)]="question.allowMultiple" (ngModelChange)="handleFormChange()" />
