@@ -40,6 +40,7 @@
                     #endDateInput
                     type="datetime-local"
                     [(ngModel)]="surveyEndDate"
+                    [min]="minEndDateTime"
                     (focus)="openDatePicker(endDateInput)"
                     (keydown)="$event.preventDefault()"
                     (paste)="$event.preventDefault()"
@@ -58,6 +59,7 @@
                   <input
                     type="date"
                     [ngModel]="endDateValue"
+                    [min]="minEndDate"
                     (ngModelChange)="updateEndDate($event)"
                   />
                 </div>
@@ -65,6 +67,7 @@
                   <input
                     type="time"
                     [ngModel]="endTimeValue"
+                    [min]="minEndTime"
                     (ngModelChange)="updateEndTime($event)"
                     step="60"
                   />

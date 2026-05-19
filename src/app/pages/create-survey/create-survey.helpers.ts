@@ -52,13 +52,49 @@ export function isSurveyFormValid(
   selectedCategory: string,
   questions: QuestionBlock[]
 ) {
-  if (!surveyTitle.trim() || !surveyEndDate || !selectedCategory) return false;
-  return questions.every(
-    question =>
-      question.text.trim() &&
-      question.answers.length >= 2 &&
-      question.answers.every(answer => answer.trim())
-  );
+  return getSurveyFormErrors(surveyTitle, surveyEndDate, selectedCategory, questions).length === 0;
+}
+
+/**
+ * Collects all missing or invalid survey form fields.
+ *
+ * @param surveyTitle Current survey title.
+ * @param surveyEndDate Current survey end date.
+ * @param selectedCategory Selected survey category.
+ * @param questions Current question blocks.
+ * @returns A list of user-facing validation messages.
+ */
+export function getSurveyFormErrors(
+  surveyTitle: string,
+  surveyEndDate: string,
+  selectedCategory: string,
+  questions: QuestionBlock[]
+) {
+  const errors: string[] = [];
+  if (!surveyTitle.trim()) errors.push('Add a survey name.');
+  if (!surveyEndDate) errors.push('Choose an end date.');
+  if (!selectedCategory) errors.push('Choose a category.');
+
+  questions.forEach((question, questionIndex) => {
+    if (!question.text.trim()) {
+      errors.push(`Question ${questionIndex + 1} needs a title.`);
+    }
+
+    if (question.answers.length < 2) {
+      errors.push(`Question ${questionIndex + 1} needs at least 2 answers.`);
+      return;
+    }
+
+    question.answers.forEach((answer, answerIndex) => {
+      if (!answer.trim()) {
+        errors.push(
+          `Question ${questionIndex + 1}: answer ${String.fromCharCode(65 + answerIndex)} is empty.`
+        );
+      }
+    });
+  });
+
+  return errors;
 }
 
 /**

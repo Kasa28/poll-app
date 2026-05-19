@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { supabase } from '../../supabase';
 import {
   buildSurvey,
+  getSurveyFormErrors,
   getInsertPayload,
   getSavedSurveys,
   isSurveyFormValid,
@@ -138,7 +139,13 @@ export class CreateSurveyPublishBase {
    * Sets the validation error shown before a publish attempt.
    */
   private setPublishError() {
-    this.publishError = 'Please fill out all fields before publishing.';
+    const errors = getSurveyFormErrors(
+      this.surveyTitle,
+      this.surveyEndDate,
+      this.selectedCategory,
+      this.questions
+    );
+    this.publishError = `Please complete the survey before publishing:\n- ${errors.join('\n- ')}`;
   }
 
   /**

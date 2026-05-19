@@ -330,10 +330,17 @@
   }
 
   .publish-error {
+    clear: both;
     margin: 18px 0 0;
-    color: #ffc3b2;
+    padding: 12px 14px;
+    border: 1px solid #ff7a7a;
+    border-radius: 12px;
+    background: rgba(150, 22, 22, 0.16);
+    color: #ff8f8f;
     font-size: 14px;
     font-weight: 700;
+    line-height: 1.45;
+    white-space: pre-line;
   }
 
   .publish-success-overlay {
