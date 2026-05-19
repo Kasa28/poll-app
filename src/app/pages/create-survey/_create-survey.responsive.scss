@@ -31,6 +31,24 @@
         font-size: 14px;
       }
 
+      .publish-success-toast {
+        left: 16px;
+        right: 16px;
+        bottom: 76px;
+        width: auto;
+        padding: 12px 14px;
+        border-radius: 12px 28px 12px 12px;
+      }
+
+      .publish-success-toast p {
+        font-size: 16px;
+        line-height: 1.1;
+      }
+
+      .publish-success-toast button {
+        font-size: 22px;
+      }
+
       .add-question-btn-icon {
         width: 16px;
         height: 16px;
@@ -63,8 +81,8 @@
         .selected-category { margin-top: 4px; font-size: 16px; }
         .answers-head { flex-direction: row; align-items: center; justify-content: space-between }
         .question-actions { gap: 8px; padding-left: 0 }
-        .category-btn, label, .answer-label, .answers-head strong { font-size: 16px }
-        .answers-head label, .answer-hint { font-size: 11px }
+        .category-btn, label, .answer-label, .answers-head strong, .answers-head label { font-size: 16px }
+        .answer-hint { font-size: 11px }
 
       }
     }
