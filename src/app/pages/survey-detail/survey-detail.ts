@@ -67,6 +67,11 @@ export class SurveyDetail {
     return this.submitMessageSignal();
   }
 
+  get isPastSurvey() {
+    if (!this.survey?.endDate) return false;
+    return new Date(this.survey.endDate).getTime() < Date.now();
+  }
+
   async ngOnInit() {
     this.startLoadingWatchdog();
     try {
@@ -88,7 +93,7 @@ export class SurveyDetail {
   }
 
   async completeSurvey() {
-    if (!this.survey) return;
+    if (!this.survey || this.isPastSurvey) return;
     this.submitMessageSignal.set('');
     const voteRows = this.getSelectedVoteRows();
     if (!voteRows.length) return this.navigateHome();
@@ -99,7 +104,7 @@ export class SurveyDetail {
   }
 
   selectAnswer(questionIndex: number, answerIndex: number) {
-    if (!this.survey) {
+    if (!this.survey || this.isPastSurvey) {
       return;
     }
     const selectedAnswers = this.selectedAnswersSignal();

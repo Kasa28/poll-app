@@ -56,6 +56,7 @@
           <label class="answer-option" *ngFor="let answer of question.answers; let answerIndex = index">
             <input
               type="checkbox"
+              [disabled]="isPastSurvey"
               [checked]="isSelected(questionIndex, answerIndex)"
               (change)="selectAnswer(questionIndex, answerIndex)"
             />
@@ -68,11 +69,15 @@
         </section>
       </div>
 
-      <button class="complete-btn" type="button" [disabled]="isSubmitting" (click)="completeSurvey()">
+      <p class="submit-message" *ngIf="isPastSurvey">
+        This survey has ended. You can only view the results.
+      </p>
+
+      <button class="complete-btn" type="button" [disabled]="isSubmitting || isPastSurvey" (click)="completeSurvey()">
         Complete survey
       </button>
 
-      <p class="submit-message" *ngIf="submitMessage">
+      <p class="submit-message" *ngIf="submitMessage && !isPastSurvey">
         {{ submitMessage }}
       </p>
     </section>

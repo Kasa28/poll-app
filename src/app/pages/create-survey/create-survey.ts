@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { supabase } from '../../supabase';
@@ -44,20 +44,19 @@ export class CreateSurvey {
   publishError = '';
   isPublishing = false;
   showPublishSuccess = false;
+  pendingSurveyId = '';
   questions: QuestionBlock[] = [
     {
       text: 'Which date would work best for you?',
       allowMultiple: false,
       answers: ['', ''],
     },
-    {
-      text: 'Choose the activities you prefer?',
-      allowMultiple: false,
-      answers: ['', ''],
-    },
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   get firstQuestion() {
     return this.questions[0];
@@ -97,6 +96,24 @@ export class CreateSurvey {
     this.isCategoryMenuOpen = false;
   }
 
+  get endDateValue() {
+    return this.surveyEndDate.split('T')[0] || '';
+  }
+
+  get endTimeValue() {
+    return this.surveyEndDate.split('T')[1] || '12:00';
+  }
+
+  updateEndDate(date: string) {
+    if (!date) return this.clearSurveyEndDate();
+    this.surveyEndDate = `${date}T${this.endTimeValue}`;
+  }
+
+  updateEndTime(time: string) {
+    if (!this.endDateValue) return;
+    this.surveyEndDate = `${this.endDateValue}T${time || '12:00'}`;
+  }
+
   openDatePicker(input: HTMLInputElement) {
     try {
       input.showPicker?.();
@@ -110,27 +127,16 @@ export class CreateSurvey {
     this.questions[questionIndex].text = '';
   }
 
-  removeQuestion(questionIndex: number) {
-    this.questions.splice(questionIndex, 1);
-  }
-
   clearAnswer(questionIndex: number, answerIndex: number) {
     this.questions[questionIndex].answers[answerIndex] = '';
   }
 
   addAnswer(questionIndex: number) {
-    const question = this.questions[questionIndex];
-    if (question.answers.length < 6) {
-      question.answers.push('');
-    }
+    this.questions[questionIndex].answers.push('');
   }
 
   addNextQuestion() {
-    this.questions.push({
-      text: '',
-      allowMultiple: false,
-      answers: ['', ''],
-    });
+    this.questions.push(this.buildQuestion(this.questions.length));
   }
 
   getQuestionPlaceholder(questionIndex: number) {
@@ -204,6 +210,14 @@ export class CreateSurvey {
     };
   }
 
+  private buildQuestion(questionIndex: number): QuestionBlock {
+    return {
+      text: this.getQuestionPlaceholder(questionIndex),
+      allowMultiple: false,
+      answers: ['', ''],
+    };
+  }
+
   private saveSurveyLocally(survey: PublishedSurvey) {
     const savedSurveys = this.getSavedSurveys();
     savedSurveys.unshift(survey);
@@ -243,17 +257,29 @@ export class CreateSurvey {
     console.log('Survey publish error:', error);
     this.publishError = `Survey publish failed: ${error.message}`;
     this.isPublishing = false;
+    this.syncView();
   }
 
   private async finishPublish(oldId: string, newId: string) {
     this.replaceLocalSurveyId(oldId, newId);
+    if (this.isMobileView()) return this.goToSurvey(newId);
+    this.pendingSurveyId = newId;
     this.showPublishSuccess = true;
-    await this.delay(3000);
-    await this.router.navigate(['/survey', newId]);
+    this.isPublishing = false;
+    this.syncView();
   }
 
-  private delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  private isMobileView() {
+    return window.innerWidth <= 640;
+  }
+
+  private async goToSurvey(surveyId: string) {
+    this.isPublishing = false;
+    await this.router.navigate(['/survey', surveyId]);
+  }
+
+  private syncView() {
+    this.cdr.detectChanges();
   }
 
   trackByIndex(index: number) {
@@ -262,5 +288,10 @@ export class CreateSurvey {
 
   getAnswerLabel(answerIndex: number) {
     return String.fromCharCode(65 + answerIndex) + '.';
+  }
+
+  async closePublishSuccess() {
+    this.showPublishSuccess = false;
+    await this.goToSurvey(this.pendingSurveyId);
   }
 }

@@ -31,7 +31,7 @@
     </div>
   </section>
 
-  <section class="survey-section">
+  <section class="survey-section" [class.menu-open]="isCategoryMenuOpen">
     <h2 class="section-title">Your surveys</h2>
 
     <p class="load-notice" *ngIf="loadNotice">

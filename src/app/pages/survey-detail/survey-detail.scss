@@ -233,6 +233,11 @@
     }
   }
 
+  .answer-option:has(input:disabled) {
+    cursor: default;
+    opacity: 0.8;
+  }
+
   .complete-btn {
     float: right;
     margin-top: 26px;
@@ -244,6 +249,18 @@
     font-family: 'Mulish', sans-serif;
     font-weight: 800;
     font-size: 16px;
+  }
+
+  .complete-btn:disabled {
+    opacity: 0.65;
+    cursor: default;
+  }
+
+  .submit-message {
+    margin: 22px 0 0;
+    color: #5a4f64;
+    font-size: 14px;
+    font-weight: 700;
   }
 }
 
