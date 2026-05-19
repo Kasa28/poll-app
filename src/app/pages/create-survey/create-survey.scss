@@ -209,8 +209,26 @@
       padding-top: 20px;
     }
 
+    .question-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .question-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
     .question-label {
       margin-bottom: 12px;
+    }
+
+    .question-delete-btn {
+      align-self: flex-start;
     }
 
     .answers-head {

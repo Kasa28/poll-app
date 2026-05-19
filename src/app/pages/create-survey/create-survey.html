@@ -123,8 +123,18 @@
         class="question-card"
         *ngFor="let question of questions; let questionIndex = index; trackBy: trackByIndex"
       >
+        <div class="question-head">
+          <span class="question-title">{{ questionIndex + 1 }}. Question <span class="required-mark">*</span></span>
+          <button
+            class="ghost-icon question-delete-btn"
+            type="button"
+            aria-label="Delete whole question"
+            *ngIf="questions.length > 1"
+            (click)="deleteQuestion(questionIndex)"
+          ></button>
+        </div>
+
         <label class="question-label">
-          {{ questionIndex + 1 }}. Question <span class="required-mark">*</span>
           <div class="input-with-icon">
             <input
               type="text"

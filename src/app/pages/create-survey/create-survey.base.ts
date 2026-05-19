@@ -132,17 +132,19 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
     const question = this.questions[questionIndex];
     if (!question) return;
 
-    const isQuestionEmpty = !question.text.trim() && question.answers.every(answer => !answer.trim());
-    if (isQuestionEmpty && this.questions.length > 1) {
-      this.questions.splice(questionIndex, 1);
-      this.handleFormChange();
-      return;
-    }
-
     question.text = '';
     question.suppressPlaceholder = true;
-    question.allowMultiple = false;
-    question.answers = question.answers.map(() => '');
+    this.handleFormChange();
+  }
+
+  /**
+   * Removes one whole question card from the survey builder.
+   *
+   * @param questionIndex Index of the question to remove.
+   */
+  deleteQuestion(questionIndex: number) {
+    if (this.questions.length <= 1) return;
+    this.questions.splice(questionIndex, 1);
     this.handleFormChange();
   }
 

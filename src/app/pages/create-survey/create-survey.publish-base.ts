@@ -278,21 +278,11 @@ export class CreateSurveyPublishBase {
    */
   private async finishPublish(oldId: string, newId: string) {
     this.replaceLocalSurveyId(oldId, newId);
-    if (this.isMobileView()) return this.goToSurvey(newId);
     this.pendingSurveyId = newId;
     this.showPublishSuccess = true;
     this.isPublishing = false;
     this.syncView();
     window.setTimeout(() => void this.closePublishSuccess(), this.publishSuccessDelayMs);
-  }
-
-  /**
-   * Checks whether the current viewport should use mobile publish behavior.
-   *
-   * @returns True if the viewport width is mobile-sized.
-   */
-  private isMobileView() {
-    return window.matchMedia('(max-width: 640px) and (pointer: coarse)').matches;
   }
 
   /**
