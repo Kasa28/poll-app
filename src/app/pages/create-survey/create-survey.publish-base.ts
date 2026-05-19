@@ -15,6 +15,7 @@ import { PublishedSurvey, QuestionBlock } from './create-survey.types';
 @Directive()
 export class CreateSurveyPublishBase {
   private readonly publishSuccessDelayMs = 2000;
+  private showValidationError = false;
   categories = [
     'Team Activities',
     'Health & Wellness',
@@ -104,6 +105,7 @@ export class CreateSurveyPublishBase {
   async publishSurvey() {
     this.publishError = '';
     if (!this.isFormValid()) return this.setPublishError();
+    this.showValidationError = false;
     this.isPublishing = true;
     const survey = this.buildSurvey();
     this.saveSurveyLocally(survey);
@@ -140,13 +142,35 @@ export class CreateSurveyPublishBase {
    * Sets the validation error shown before a publish attempt.
    */
   private setPublishError() {
+    this.showValidationError = true;
+    this.publishError = this.buildValidationErrorMessage();
+  }
+
+  /**
+   * Refreshes the visible validation message while the user edits the form.
+   */
+  handleFormChange() {
+    if (!this.showValidationError) return;
+    this.publishError = this.buildValidationErrorMessage();
+    if (!this.publishError) {
+      this.showValidationError = false;
+    }
+  }
+
+  /**
+   * Builds the detailed validation message for incomplete fields.
+   *
+   * @returns Formatted validation message or an empty string when the form is valid.
+   */
+  private buildValidationErrorMessage() {
     const errors = getSurveyFormErrors(
       this.surveyTitle,
       this.surveyEndDate,
       this.selectedCategory,
       this.questions
     );
-    this.publishError = `Please complete the survey before publishing:\n- ${errors.join('\n- ')}`;
+    if (!errors.length) return '';
+    return `Please complete the survey before publishing:\n- ${errors.join('\n- ')}`;
   }
 
   /**

@@ -18,7 +18,7 @@
           <label class="survey-name-field">
             Survey name <span class="required-mark">*</span>
             <div class="input-with-icon">
-              <input type="text" [(ngModel)]="surveyTitle" />
+              <input type="text" [(ngModel)]="surveyTitle" (ngModelChange)="handleFormChange()" />
               <button
                 class="ghost-icon"
                 type="button"
@@ -40,6 +40,7 @@
                     #endDateInput
                     type="datetime-local"
                     [(ngModel)]="surveyEndDate"
+                    (ngModelChange)="handleFormChange()"
                     [min]="minEndDateTime"
                     (focus)="openDatePicker(endDateInput)"
                     (keydown)="$event.preventDefault()"
@@ -105,7 +106,7 @@
         <label class="description-field">
           Describing text <span>(optional)</span>
           <div class="input-with-icon">
-            <textarea [(ngModel)]="surveyDescription"></textarea>
+            <textarea [(ngModel)]="surveyDescription" (ngModelChange)="handleFormChange()"></textarea>
             <button
               class="ghost-icon"
               type="button"
@@ -128,6 +129,7 @@
             <input
               type="text"
               [(ngModel)]="question.text"
+              (ngModelChange)="handleFormChange()"
               [placeholder]="getQuestionPlaceholder(questionIndex)"
             />
             <button
@@ -143,7 +145,7 @@
           <strong>Answers</strong>
 
           <label class="answers-toggle">
-            <input type="checkbox" [(ngModel)]="question.allowMultiple" />
+            <input type="checkbox" [(ngModel)]="question.allowMultiple" (ngModelChange)="handleFormChange()" />
             Allow multiple answers.
           </label>
         </div>
@@ -158,7 +160,7 @@
         >
           <span class="answer-label">{{ getAnswerLabel(answerIndex) }}</span>
           <div class="input-with-icon">
-            <input type="text" [(ngModel)]="question.answers[answerIndex]" />
+            <input type="text" [(ngModel)]="question.answers[answerIndex]" (ngModelChange)="handleFormChange()" />
             <button
               class="ghost-icon"
               type="button"

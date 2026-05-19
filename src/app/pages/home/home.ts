@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { supabase } from '../../supabase';
 
 /**
@@ -48,6 +48,7 @@ type LocalSurvey = {
   styleUrl: './home.scss',
 })
 export class Home {
+  private readonly voteCooldownMs = 3000;
   readonly categories = [
     'Team Activities',
     'Health & Wellness',
@@ -60,6 +61,7 @@ export class Home {
   filteredSurveys: Survey[] = [];
   endingSoonSurveys: Survey[] = [];
   loadNotice = '';
+  cooldownNotice = '';
   isCategoryMenuOpen = false;
   selectedCategory = '';
   activeTab: 'active' | 'past' = 'active';
@@ -68,8 +70,12 @@ export class Home {
    * Creates the home page component.
    *
    * @param cdr Angular change detector used to refresh the view after async loading.
+   * @param router Angular router used to open survey detail pages.
    */
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) {}
 
   /**
    * Loads local fallback surveys and then tries to load surveys from Supabase.
@@ -172,6 +178,30 @@ export class Home {
   setActiveTab(tab: 'active' | 'past') {
     this.activeTab = tab;
     this.updateSurveyViews();
+  }
+
+  /**
+   * Opens one survey unless a short post-vote cooldown is still active.
+   *
+   * @param surveyId Survey id to open.
+   * @param event Click event from the survey card.
+   */
+  openSurvey(surveyId: string, event: Event) {
+    event.preventDefault();
+    if (!this.isVoteCooldownActive(surveyId)) {
+      this.cooldownNotice = '';
+      void this.router.navigate(['/survey', surveyId]);
+      return;
+    }
+
+    this.cooldownNotice = 'Please wait 3 seconds before opening this survey again.';
+    const remainingMs = this.getVoteCooldownRemainingMs(surveyId);
+    window.setTimeout(() => {
+      if (!this.isVoteCooldownActive(surveyId)) {
+        this.cooldownNotice = '';
+        this.refreshView();
+      }
+    }, remainingMs);
   }
 
   /**
@@ -330,6 +360,37 @@ export class Home {
    */
   private refreshView() {
     this.cdr.detectChanges();
+  }
+
+  /**
+   * Checks whether the short post-vote cooldown is still active.
+   *
+   * @param surveyId Survey id to check.
+   * @returns True while the cooldown is active.
+   */
+  private isVoteCooldownActive(surveyId: string) {
+    return this.getVoteCooldownRemainingMs(surveyId) > 0;
+  }
+
+  /**
+   * Returns the remaining cooldown time in milliseconds.
+   *
+   * @param surveyId Survey id to check.
+   * @returns Remaining cooldown time or zero.
+   */
+  private getVoteCooldownRemainingMs(surveyId: string) {
+    const cooldownUntil = Number(localStorage.getItem(this.getVoteCooldownKey(surveyId)) || 0);
+    return Math.max(0, cooldownUntil - Date.now());
+  }
+
+  /**
+   * Builds the localStorage key used for the short post-vote cooldown.
+   *
+   * @param surveyId Survey id to namespace the key.
+   * @returns localStorage key for one survey cooldown.
+   */
+  private getVoteCooldownKey(surveyId: string) {
+    return `pollapp-vote-cooldown-${surveyId}`;
   }
 
   /**

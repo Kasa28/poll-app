@@ -51,6 +51,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
   selectCategory(category: string) {
     this.selectedCategory = category;
     this.isCategoryMenuOpen = false;
+    this.handleFormChange();
   }
 
   /**
@@ -58,6 +59,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    */
   clearSurveyTitle() {
     this.surveyTitle = '';
+    this.handleFormChange();
   }
 
   /**
@@ -65,6 +67,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    */
   clearSurveyDescription() {
     this.surveyDescription = '';
+    this.handleFormChange();
   }
 
   /**
@@ -72,6 +75,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    */
   clearSurveyEndDate() {
     this.surveyEndDate = '';
+    this.handleFormChange();
   }
 
   /**
@@ -80,6 +84,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
   clearSelectedCategory() {
     this.selectedCategory = '';
     this.isCategoryMenuOpen = false;
+    this.handleFormChange();
   }
 
   /**
@@ -90,6 +95,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
   updateEndDate(date: string) {
     if (!date) return this.clearSurveyEndDate();
     this.surveyEndDate = `${date}T${this.endTimeValue}`;
+    this.handleFormChange();
   }
 
   /**
@@ -100,6 +106,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
   updateEndTime(time: string) {
     if (!this.endDateValue) return;
     this.surveyEndDate = `${this.endDateValue}T${time || '12:00'}`;
+    this.handleFormChange();
   }
 
   /**
@@ -123,6 +130,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    */
   clearQuestion(questionIndex: number) {
     this.questions[questionIndex].text = '';
+    this.handleFormChange();
   }
 
   /**
@@ -133,6 +141,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    */
   clearAnswer(questionIndex: number, answerIndex: number) {
     this.questions[questionIndex].answers[answerIndex] = '';
+    this.handleFormChange();
   }
 
   /**
@@ -142,6 +151,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    */
   addAnswer(questionIndex: number) {
     this.questions[questionIndex].answers.push('');
+    this.handleFormChange();
   }
 
   /**
@@ -149,6 +159,7 @@ export class CreateSurveyBase extends CreateSurveyPublishBase {
    */
   addNextQuestion() {
     this.questions.push(buildQuestion(this.questions.length));
+    this.handleFormChange();
   }
 
   /**

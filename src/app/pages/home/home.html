@@ -38,6 +38,10 @@
       {{ loadNotice }}
     </p>
 
+    <p class="load-notice" *ngIf="cooldownNotice">
+      {{ cooldownNotice }}
+    </p>
+
     <section class="ending-soon">
       <h3>Ending soon surveys</h3>
 
@@ -45,7 +49,8 @@
         <a
           class="ending-card"
           *ngFor="let survey of endingSoonSurveys"
-          [routerLink]="['/survey', survey.id]"
+          href=""
+          (click)="openSurvey(survey.id, $event)"
         >
           <small>{{ survey.category }}</small>
           <h4>{{ survey.title }}</h4>
@@ -101,7 +106,8 @@
       <a
         class="survey-row"
         *ngFor="let survey of filteredSurveys"
-        [routerLink]="['/survey', survey.id]"
+        href=""
+        (click)="openSurvey(survey.id, $event)"
       >
         <small>{{ survey.category }}</small>
         <h3>{{ survey.title }}</h3>
