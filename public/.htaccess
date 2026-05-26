@@ -1,11 +1,12 @@
-Options -MultiViews
-RewriteEngine On
-RewriteBase /angular-projects/
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
 
-RewriteRule ^index\.html$ - [L]
+  RewriteRule ^index\.html$ - [L]
 
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
 
-RewriteRule ^ index.html [L]
+  RewriteRule ^ index.html [L]
+</IfModule>
